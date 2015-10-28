@@ -1,0 +1,31 @@
+http://www.systembolaget.se/api/assortment/products/xml
+http://www.systembolaget.se/api/assortment/stores/xml
+http://www.systembolaget.se/api/assortment/stock/xml
+
+Starta
+Hämtar senaste (behövda) filerna
+
+
+Bäställa till närmaste Systembolag UC
+(Hitta närmsta systembolag)
+Filtrera produkter så att endast drycker som kan beställas visas
+  * Säljstart < dagens datum
+  * Antal som måste beställas < angivet värde
+  * Plocka bort drycker som bara får säljas innom ett visst område ELLER
+  (* Beräkna hur långt bort närmaste systembolag är från varje produkt och visa om de är inom rätt intervall (alltid 15 mil?)
+Filtrera på Dryck och dryckestyp enligt angivet filter
+Visa, en åt gången, så många drycker som angivits
+Ge användaren möjlighet att skippa, utesluta, lägg till
+När alla drycker visats (Vid skipp eller uteslut, lägg till nya drycker att visa) Visa alla drycker som lagts till, fråga användare om fler drycker ska visas
+
+
+
+
+Startparametrer:
+Setup = "Låter användren ange startparametrar innifrån programmet"
+LOC = "Försök hitta användarens position, för att hitta närmsta systembolag"
+frågaLOC = "Frågar vid varje lokalproducerad produkt om användaren befinner sig inom 15 mil från produktens produktionsställe"
+Antal = "Så många drycker som ska hittas"
+
+
+Sortiment TSLS inebär att produkten bara kan beställas 15 mil från produktionsstället
