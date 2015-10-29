@@ -3,6 +3,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
+require 'io/console'
 
 class String
   def wrap(pre, post)
@@ -21,9 +22,10 @@ class Nokogiri::XML::Node
 end
 
 class Artikel
-  attr_reader :artikelid, :namn, :pris, :säljstart
+  attr_reader :artikelid, :namn, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt
 
   def initialize(node)
+    @nr = node.get_childnode_text('nr')
     @artikelid = node.get_childnode_text('Artikelid')
     @namn = node.get_childnode_text('Namn') + " " + node.get_childnode_text('Namn2')
     @pris = node.get_childnode_text('Prisinklmoms').to_f
@@ -38,6 +40,7 @@ class Artikel
     @alkoholhalt = node.get_childnode_text('Alkoholhalt')
     @sortiment = node.get_childnode_text('Sortiment')
     @ekologiskt = !node.get_childnode_text('Ekologisk').to_i.zero?
+    @råvarorBeskrivning = node.get_childnode_text('RavarorBeskrivning')
   end
 
   def to_s
@@ -99,6 +102,37 @@ def skapa_jämför_datum_sub_query(startIndex, endIndex, jämförelse, value)
   "number(substring(./Saljstart/text(),#{startIndex},#{endIndex})) #{jämförelse} #{value}"
 end
 
+def visaArtikelInformation(artikel)
+  puts(artikel.namn)
+  puts()
+  puts(artikel.varugrupp)
+  puts("#{artikel.råvarorBeskrivning} #{artikel.pris} #{artikel.alkoholhalt}")
+  puts()
+end
+
+def visaMöjligaVal()
+  puts("Välj mellan: [L]ägg till, [S]kippa, [U]teslut eller [A]vbryt.")
+end
+
+def hanteraAnvändarensVal()
+  valGjort = false
+  while(!valGjort)
+    val = STDIN.getch
+    case val
+      when 'l'
+
+        valGjort = true
+      when 'u'
+        valGjort = true
+      when 's'
+        valGjort = true
+      when 'a'
+        exit()
+        valGjort = true
+    end
+  end
+end
+
 options = {}
 options[:antal] = 100 #default
 OptionParser.new do |opts|
@@ -133,7 +167,12 @@ artikelNoder.each do |node|
   artikel = Artikel.new(node)
   artiklar << artikel
 end
-clearConsole()
+
 #puts query
-puts(artiklar)
-puts(artiklar.length)
+artiklar.each do |artikel|
+  clearConsole()
+  visaArtikelInformation(artikel)
+  visaMöjligaVal()
+  hanteraAnvändarensVal()
+end
+clearConsole()
