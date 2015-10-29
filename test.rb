@@ -2,6 +2,7 @@
 
 require 'nokogiri'
 require 'open-uri'
+require 'optparse'
 
 class String
   def wrap(pre, post)
@@ -60,6 +61,56 @@ def skapa_oönskade_sortiment_query(oönskadeSortiment)
   return oönskadeSortimentArray.join(' or ').wrap('not(', ')')
 end
 
+def clearConsole()
+  puts "\e[H\e[2J"
+end
+
+def skapa_antal_query(antal)
+  return "position()<=#{antal}"
+end
+
+def skapa_säljstarts_query(dagensDatum)
+  year = dagensDatum.year
+  month = dagensDatum.month
+  day = dagensDatum.day
+
+  lessThanYear = skapa_mindre_än_datum_sub_query(1,4,year)
+  sameYear = skapa_samma_datum_sub_query(1,4,year)
+  lessThanMonth = skapa_mindre_än_datum_sub_query(6,2,month)
+  sameMonth = skapa_samma_datum_sub_query(6,2,month)
+  lessThanOrEqualDay = skapa_mindre_än_eller_samma_datum_sub_query(9,2,day)
+
+  return "#{lessThanYear} or (#{sameYear} and #{lessThanMonth}) or (#{sameYear} and #{sameMonth} and #{lessThanOrEqualDay})"
+end
+
+def skapa_mindre_än_eller_samma_datum_sub_query(startIndex, endIndex, value)
+  skapa_jämför_datum_sub_query(startIndex,endIndex,"<=",value)
+end
+
+def skapa_mindre_än_datum_sub_query(startIndex, endIndex, value)
+  skapa_jämför_datum_sub_query(startIndex,endIndex,"<",value)
+end
+
+def skapa_samma_datum_sub_query(startIndex, endIndex, value)
+  skapa_jämför_datum_sub_query(startIndex,endIndex,"=",value)
+end
+
+def skapa_jämför_datum_sub_query(startIndex, endIndex, jämförelse, value)
+  "number(substring(./Saljstart/text(),#{startIndex},#{endIndex})) #{jämförelse} #{value}"
+end
+
+options = {}
+options[:antal] = 100 #default
+OptionParser.new do |opts|
+  opts.banner = "Usage: test.rb [options]"
+
+  opts.on('-a', '--antal Antal', 'Antal artiklar som ska visas') { |v| options[:antal] = v }
+  opts.on('-s', '--framtidasäljstart', 'Om produkter med framtida säljstart ska visas') { |v| options[:framtida_säljstart] = v }
+
+end.parse!
+
+clearConsole()
+puts("Fetching and filtering search...")
 #products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
 products = Nokogiri::XML(File.open('products.xml'))
 
@@ -69,12 +120,20 @@ varugruppQuery = skapa_varugrupps_query(varugrupper).wrap_with_parenthesis()
 oönskadeSortiment = ['BS', 'TSLS', 'TSE']
 oönskadeSortimentQuery = skapa_oönskade_sortiment_query(oönskadeSortiment).wrap_with_parenthesis()
 
-query = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery}]/."
+dagensDatum = DateTime.now
+sälstartsQuery = skapa_säljstarts_query(dagensDatum).wrap_with_parenthesis()
+
+antal = options[:antal]
+antalQuery = skapa_antal_query(antal).wrap_with_parenthesis()
+
+query = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery} and #{sälstartsQuery}][#{antalQuery}]/."
 artikelNoder = products.xpath(query)
 artiklar = []
 artikelNoder.each do |node|
   artikel = Artikel.new(node)
-  artiklar << artikel unless artikel.säljstart > DateTime.now
+  artiklar << artikel
 end
+clearConsole()
+#puts query
 puts(artiklar)
 puts(artiklar.length)
