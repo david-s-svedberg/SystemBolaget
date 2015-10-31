@@ -132,7 +132,7 @@ def visaArtikelInformation(artikel)
 end
 
 def visaMöjligaVal()
-  puts("Välj mellan: [L]ägg till, [S]kippa, [U]teslut eller [A]vbryt.")
+  puts("Välj mellan: [L]ägg till, [S]kippa, [U]teslut, [Ö]ppna hemsida eller [A]vbryt.")
 end
 
 def sparaUteslutenArtikel(artikel)
@@ -179,6 +179,8 @@ def hanteraAnvändarensVal(artikel, valdaArtiklar)
         sparaValdArtikel(artikel)
         Launchy.open(generera_artikelhemsida(artikel))
         valGjort = true
+      when 'ö'
+        Launchy.open(generera_artikelhemsida(artikel))
       when 'u'
         sparaUteslutenArtikel(artikel)
         valGjort = true
