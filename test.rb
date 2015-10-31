@@ -48,6 +48,9 @@ class Artikel
   end
 end
 
+VALDA_ARTIKLAR_FILNAMN = "tidigare_valda.dat"
+UTESLUTNA_ARTIKLAR_FILNAMN = "uteslutna.dat"
+
 def skapa_varugrupps_query(varugrupper)
   varugruppQueryArray = []
   varugrupper.each do |varugrupp|
@@ -62,6 +65,14 @@ def skapa_oönskade_sortiment_query(oönskadeSortiment)
     oönskadeSortimentArray << "./Sortiment = '#{sortiment}'"
   end
   return oönskadeSortimentArray.join(' or ').wrap('not(', ')')
+end
+
+def skapa_not_nr_query(artiklar)
+  arr = []
+  artiklar.each do |artikel|
+    arr << "./nr = #{artikel}"
+  end
+  return arr.join(' or ').wrap('not(', ')')
 end
 
 def clearConsole()
@@ -114,19 +125,52 @@ def visaMöjligaVal()
   puts("Välj mellan: [L]ägg till, [S]kippa, [U]teslut eller [A]vbryt.")
 end
 
-def hanteraAnvändarensVal()
+def sparaUteslutenArtikel(artikel)
+  File.open(UTESLUTNA_ARTIKLAR_FILNAMN, "a") do |file|
+    file.puts(artikel.nr)
+  end
+end
+
+def sparaValdArtikel(artikel)
+  File.open(VALDA_ARTIKLAR_FILNAMN, "a") do |file|
+    file.puts(artikel.nr)
+  end
+end
+
+def läs_in_uteslutna()
+  return läs_in_fil_artiklar(UTESLUTNA_ARTIKLAR_FILNAMN)
+end
+
+def läs_in_tidigare_valda()
+  return läs_in_fil_artiklar(VALDA_ARTIKLAR_FILNAMN)
+end
+
+def läs_in_fil_artiklar(filnamn)
+  artiklar = [-1]
+  if(File.exist?(filnamn))
+    file = File.open(filnamn, "r")
+    artiklar.concat(file.each_line.to_a)
+    file.close
+  end
+  return artiklar
+end
+
+def hanteraAnvändarensVal(artikel, valdaArtiklar)
   valGjort = false
   while(!valGjort)
     val = STDIN.getch
     case val
       when 'l'
-
+        valdaArtiklar << artikel
+        sparaValdArtikel(artikel)
         valGjort = true
       when 'u'
+        sparaUteslutenArtikel(artikel)
         valGjort = true
       when 's'
         valGjort = true
       when 'a'
+        clearConsole()
         exit()
         valGjort = true
     end
@@ -160,19 +204,25 @@ sälstartsQuery = skapa_säljstarts_query(dagensDatum).wrap_with_parenthesis()
 antal = options[:antal]
 antalQuery = skapa_antal_query(antal).wrap_with_parenthesis()
 
-query = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery} and #{sälstartsQuery}][#{antalQuery}]/."
+uteslutna = läs_in_uteslutna()
+uteslutnaQuery = skapa_not_nr_query(uteslutna).wrap_with_parenthesis()
+
+tidigareValda = läs_in_tidigare_valda()
+tidigareValdaQuery = skapa_not_nr_query(tidigareValda).wrap_with_parenthesis()
+
+query = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery} and #{sälstartsQuery} and #{uteslutnaQuery} and #{tidigareValdaQuery}][#{antalQuery}]/."
 artikelNoder = products.xpath(query)
 artiklar = []
 artikelNoder.each do |node|
   artikel = Artikel.new(node)
   artiklar << artikel
 end
-
+valdaArtiklar = []
 #puts query
 artiklar.each do |artikel|
   clearConsole()
   visaArtikelInformation(artikel)
   visaMöjligaVal()
-  hanteraAnvändarensVal()
+  hanteraAnvändarensVal(artikel, valdaArtiklar)
 end
 clearConsole()
