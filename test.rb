@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'optparse'
 require 'io/console'
+require 'highline'
 
 class String
   def wrap(pre, post)
@@ -22,7 +23,7 @@ class Nokogiri::XML::Node
 end
 
 class Artikel
-  attr_reader :artikelid, :namn, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt
+  attr_reader :artikelid, :namn, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
 
   def initialize(node)
     @nr = node.get_childnode_text('nr')
@@ -117,8 +118,14 @@ def visaArtikelInformation(artikel)
   puts(artikel.namn)
   puts()
   puts(artikel.varugrupp)
-  puts("#{artikel.råvarorBeskrivning} #{artikel.pris} #{artikel.alkoholhalt}")
-  puts()
+  puts("#{artikel.råvarorBeskrivning}")
+  puts("#{artikel.pris}kr")
+  puts("#{artikel.alkoholhalt}")
+  puts("#{artikel.volym}ml")
+  puts("#{artikel.prisPerLiter}kr per liter")
+  (HighLine::SystemExtensions.terminal_size[1] - 11).times.each do
+    puts()
+  end
 end
 
 def visaMöjligaVal()
