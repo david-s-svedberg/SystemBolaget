@@ -5,6 +5,7 @@ require 'open-uri'
 require 'optparse'
 require 'io/console'
 require 'highline'
+require 'launchy'
 
 class String
   def wrap(pre, post)
@@ -23,12 +24,13 @@ class Nokogiri::XML::Node
 end
 
 class Artikel
-  attr_reader :artikelid, :namn, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
+  attr_reader :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
 
   def initialize(node)
     @nr = node.get_childnode_text('nr')
     @artikelid = node.get_childnode_text('Artikelid')
-    @namn = node.get_childnode_text('Namn') + " " + node.get_childnode_text('Namn2')
+    @namn = node.get_childnode_text('Namn')
+    @namn2 = node.get_childnode_text('Namn2')
     @pris = node.get_childnode_text('Prisinklmoms').to_f
     @volym = node.get_childnode_text('Volymiml').to_f
     @prisPerLiter = node.get_childnode_text('PrisPerLiter').to_f
@@ -116,6 +118,7 @@ end
 
 def visaArtikelInformation(artikel)
   puts(artikel.namn)
+  puts(artikel.namn2)
   puts()
   puts(artikel.varugrupp)
   puts("#{artikel.råvarorBeskrivning}")
@@ -123,7 +126,7 @@ def visaArtikelInformation(artikel)
   puts("#{artikel.alkoholhalt}")
   puts("#{artikel.volym}ml")
   puts("#{artikel.prisPerLiter}kr per liter")
-  (HighLine::SystemExtensions.terminal_size[1] - 11).times.each do
+  (HighLine::SystemExtensions.terminal_size[1] - 12).times.each do
     puts()
   end
 end
@@ -162,6 +165,10 @@ def läs_in_fil_artiklar(filnamn)
   return artiklar
 end
 
+def generera_artikelhemsida(artikel)
+  return "http://www.systembolaget.se/dryck/ol/#{artikel.namn.sub('å', 'a').sub('ä', 'a').sub('ö', 'o').gsub(' ', '-').downcase}-#{artikel.nr}"
+end
+
 def hanteraAnvändarensVal(artikel, valdaArtiklar)
   valGjort = false
   while(!valGjort)
@@ -170,6 +177,7 @@ def hanteraAnvändarensVal(artikel, valdaArtiklar)
       when 'l'
         valdaArtiklar << artikel
         sparaValdArtikel(artikel)
+        Launchy.open(generera_artikelhemsida(artikel))
         valGjort = true
       when 'u'
         sparaUteslutenArtikel(artikel)
