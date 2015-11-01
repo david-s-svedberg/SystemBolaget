@@ -6,6 +6,8 @@ require 'optparse'
 require 'io/console'
 require 'highline'
 require 'launchy'
+require 'mechanize'
+require "net/http"
 
 class String
   def wrap(pre, post)
@@ -24,7 +26,7 @@ class Nokogiri::XML::Node
 end
 
 class Artikel
-  attr_reader :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
+  attr_reader :sortiment, :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
 
   def initialize(node)
     @nr = node.get_childnode_text('nr')
@@ -53,6 +55,7 @@ end
 
 VALDA_ARTIKLAR_FILNAMN = "tidigare_valda.dat"
 UTESLUTNA_ARTIKLAR_FILNAMN = "uteslutna.dat"
+SAKNAR_KOLLIKRAV_ARTIKLAR_FILNAMN = "saknar_kollikrav.dat"
 
 def skapa_varugrupps_query(varugrupper)
   varugruppQueryArray = []
@@ -136,8 +139,8 @@ def visaMöjligaVal()
 end
 
 def sparaUteslutenArtikel(artikel)
-  File.open(UTESLUTNA_ARTIKLAR_FILNAMN, "a") do |file|
-    file.puts(artikel.nr)
+  File.open(UTESLUTNA_ARTIKLAR_FILNAMN, "a+") do |file|
+    file.puts(artikel.nr) unless file.read.include?(artikel.nr)
   end
 end
 
@@ -145,6 +148,16 @@ def sparaValdArtikel(artikel)
   File.open(VALDA_ARTIKLAR_FILNAMN, "a") do |file|
     file.puts(artikel.nr)
   end
+end
+
+def sparaSaknarKollikrav(artikel)
+  File.open(SAKNAR_KOLLIKRAV_ARTIKLAR_FILNAMN, "a+") do |file|
+    file.puts(artikel.nr) unless file.read.include?(artikel.nr)
+  end
+end
+
+def läs_in_saknar_kollikrav()
+  return läs_in_fil_artiklar(SAKNAR_KOLLIKRAV_ARTIKLAR_FILNAMN)
 end
 
 def läs_in_uteslutna()
@@ -166,11 +179,14 @@ def läs_in_fil_artiklar(filnamn)
 end
 
 def generera_artikelhemsida(artikel)
-  return "http://www.systembolaget.se/dryck/ol/#{artikel.namn.sub('å', 'a').sub('ä', 'a').sub('ö', 'o').gsub(' ', '-').downcase}-#{artikel.nr}"
+  bas = "http://www.systembolaget.se/dryck/ol/"
+  rest = "#{artikel.namn.gsub('å', 'a').gsub('ä', 'a').gsub('ö', 'o').gsub(" &", '').gsub(' ', '-').gsub("'", '').gsub("´", '').gsub("è", 'e').gsub("ø", 'o').gsub("Ø", 'o').gsub("ë", 'e').gsub(":", '').gsub("é", 'e').gsub("ò", 'o').gsub(".", '').gsub("!", '').gsub("á", 'a').gsub("`", '').downcase}-#{artikel.nr}"
+  return bas + rest
 end
 
 def hanteraAnvändarensVal(artikel, valdaArtiklar)
   valGjort = false
+  dryckTillagd = false
   while(!valGjort)
     val = STDIN.getch
     case val
@@ -179,6 +195,7 @@ def hanteraAnvändarensVal(artikel, valdaArtiklar)
         sparaValdArtikel(artikel)
         Launchy.open(generera_artikelhemsida(artikel))
         valGjort = true
+        dryckTillagd = true
       when 'ö'
         Launchy.open(generera_artikelhemsida(artikel))
       when 'u'
@@ -192,6 +209,53 @@ def hanteraAnvändarensVal(artikel, valdaArtiklar)
         valGjort = true
     end
   end
+  return dryckTillagd
+end
+
+def check_if_website_exists(site)
+  url = URI.parse(site)
+  req = Net::HTTP.new(url.host, url.port)
+  res = req.request_head(url.path)
+  return res.code == "200"
+end
+
+def website_contains(site, text)
+  open(site) do |io|
+    return io.read.include?(text)
+  end
+end
+
+def kollikrav(artikel, saknarKollikrav)
+  if(artikel.sortiment == "BS" and !saknarKollikrav.include?(artikel.nr))
+    site = generera_artikelhemsida(artikel)
+    if(check_if_website_exists(site))
+      if(website_contains(site, "Kollikrav"))
+        sparaUteslutenArtikel(artikel)
+        return true
+      else
+        sparaSaknarKollikrav(artikel)
+      end
+    else
+      puts("Websidan finns inte: #{site}")
+      puts("Välj mellan: [S]kippa, [U]teslut eller [A]vbryt.")
+      valGjort = false
+      while(!valGjort)
+        val = STDIN.getch
+        case val
+          when 'u'
+            sparaUteslutenArtikel(artikel)
+            valGjort = true
+          when 's'
+            valGjort = true
+          when 'a'
+            clearConsole()
+            exit()
+            valGjort = true
+        end
+      end
+    end
+  end
+  return false
 end
 
 options = {}
@@ -201,10 +265,21 @@ OptionParser.new do |opts|
 
   opts.on('-a', '--antal Antal', 'Antal artiklar som ska visas') { |v| options[:antal] = v }
   opts.on('-s', '--framtidasäljstart', 'Om produkter med framtida säljstart ska visas') { |v| options[:framtida_säljstart] = v }
+  opts.on('-b', '--butik Butik', 'Stad där system som ska levereras till ligger') { |v| options[:system_bolag] = v }
 
 end.parse!
 
+
+
 clearConsole()
+
+# if(!options[:system_bolag])
+#   puts("Ange namn på ort dit beställning ska göras")
+# end
+#systembolag = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/stores/xml'))
+# stores = Nokogiri::XML(File.open('stores.xml'))
+# storesQuery = "//ButikOmbud[contains(./Address4/text(), #{options[:]}]/."
+
 puts("Fetching and filtering search...")
 #products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
 products = Nokogiri::XML(File.open('products.xml'))
@@ -227,19 +302,30 @@ uteslutnaQuery = skapa_not_nr_query(uteslutna).wrap_with_parenthesis()
 tidigareValda = läs_in_tidigare_valda()
 tidigareValdaQuery = skapa_not_nr_query(tidigareValda).wrap_with_parenthesis()
 
-query = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery} and #{sälstartsQuery} and #{uteslutnaQuery} and #{tidigareValdaQuery}][#{antalQuery}]/."
-artikelNoder = products.xpath(query)
+productQuery = "//artikel[#{varugruppQuery} and #{sälstartsQuery} and #{uteslutnaQuery} and #{tidigareValdaQuery}]/."
+# productQuery = "//artikel[#{varugruppQuery} and #{oönskadeSortimentQuery} and #{sälstartsQuery} and #{uteslutnaQuery} and #{tidigareValdaQuery}][#{antalQuery}]/."
+artikelNoder = products.xpath(productQuery)
 artiklar = []
 artikelNoder.each do |node|
   artikel = Artikel.new(node)
   artiklar << artikel
 end
+filtreradeArtiklar = []
+saknarKollikrav = läs_in_saknar_kollikrav()
+artiklar.each do |artikel|
+  filtreradeArtiklar << artikel unless kollikrav(artikel, saknarKollikrav) #or (avståndskrav(artikel) and för_långt(valtSystem, artikel))
+end
+
 valdaArtiklar = []
 #puts query
-artiklar.each do |artikel|
+tillagdaDrycker = 0
+filtreradeArtiklar.each do |artikel|
+  break if tillagdaDrycker >= options[:antal]
   clearConsole()
   visaArtikelInformation(artikel)
   visaMöjligaVal()
-  hanteraAnvändarensVal(artikel, valdaArtiklar)
+  if(hanteraAnvändarensVal(artikel, valdaArtiklar))
+    tillagdaDrycker += 1
+  end
 end
 clearConsole()
