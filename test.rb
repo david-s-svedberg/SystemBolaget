@@ -6,26 +6,9 @@ require 'optparse'
 require 'io/console'
 require 'highline'
 require 'launchy'
-require 'mechanize'
 require "net/http"
-require 'geocoder'
-require 'redis'
-
-class String
-  def wrap(pre, post)
-    return self.prepend(pre) << post
-  end
-
-  def wrap_with_parenthesis()
-    return self.wrap('(', ')')
-  end
-end
-
-class Nokogiri::XML::Node
-  def get_childnode_text(childNodeName)
-    self.>(childNodeName).text
-  end
-end
+require_relative 'lib/core_ext/string'
+require_relative 'lib/core_ext/node'
 
 class Artikel
   attr_reader :sortiment, :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym

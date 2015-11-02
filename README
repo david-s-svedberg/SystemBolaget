@@ -37,5 +37,4 @@ TODO:
 * Formaterad visning av artiklar
 * Börja strukturera om koden i klasser för att inte bli galen
 * Spara undan valda, skippade och uteslutna artiklar
-* Geolocation för att avgöra om producenten är 15 mil från beställnings systemet
 * Skrapa artikel sida (/namn(bindesträck=mellanslag, åäö=aao)-nr) för att kolla artikelbegränsning
