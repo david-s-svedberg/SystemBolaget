@@ -58,6 +58,7 @@ end
 VALDA_ARTIKLAR_FILNAMN = "tidigare_valda.dat"
 UTESLUTNA_ARTIKLAR_FILNAMN = "uteslutna.dat"
 SAKNAR_KOLLIKRAV_ARTIKLAR_FILNAMN = "saknar_kollikrav.dat"
+GÅR_ATT_BESTÄLLA_ARTIKLAR_FILNAMN = "går_att_beställa.dat"
 
 def skapa_varugrupps_query(varugrupper)
   varugruppQueryArray = []
@@ -158,6 +159,16 @@ def sparaSaknarKollikrav(artikel)
   end
 end
 
+def sparaGårAttBeställa(artikel)
+  File.open(GÅR_ATT_BESTÄLLA_ARTIKLAR_FILNAMN, "a+") do |file|
+    file.puts(artikel.nr) unless file.read.include?(artikel.nr)
+  end
+end
+
+def läs_in_går_att_beställa()
+  return läs_in_fil_artiklar(GÅR_ATT_BESTÄLLA_ARTIKLAR_FILNAMN)
+end
+
 def läs_in_saknar_kollikrav()
   return läs_in_fil_artiklar(SAKNAR_KOLLIKRAV_ARTIKLAR_FILNAMN)
 end
@@ -212,13 +223,15 @@ def generera_artikelhemsida(artikel)
     ":" => '',
     "." => '',
     "!" => '',
+    "/" => '',
     ' ' => '-'
   }
   namn = artikel.namn
   ersättningar.each do |key, value|
     namn.gsub!(key, value)
   end
-  rest = namn + "-#{artikel.nr}".downcase
+  namn.downcase!
+  rest = namn + "-#{artikel.nr}"
   return bas + rest
 end
 
@@ -231,7 +244,6 @@ def hanteraAnvändarensVal(artikel, valdaArtiklar)
       when 'l'
         valdaArtiklar << artikel
         sparaValdArtikel(artikel)
-        Launchy.open(generera_artikelhemsida(artikel))
         valGjort = true
         dryckTillagd = true
       when 'ö'
@@ -296,6 +308,40 @@ def kollikrav(artikel, saknarKollikrav)
   return false
 end
 
+def går_att_beställa(artikel, gårAttBeställa)
+  if(artikel.sortiment == "TSLS" and !gårAttBeställa.include?(artikel.nr))
+    site = generera_artikelhemsida(artikel)
+    if(check_if_website_exists(site))
+      if(website_contains(site, "Går inte att beställa till övriga butiker"))
+        sparaUteslutenArtikel(artikel)
+        return false
+      else
+        sparaGårAttBeställa(artikel)
+      end
+    else
+      puts("Websidan finns inte: #{site}")
+      puts("Välj mellan: [S]kippa, [U]teslut eller [A]vbryt.")
+      valGjort = false
+      while(!valGjort)
+        val = STDIN.getch
+        case val
+          when 'u'
+            sparaUteslutenArtikel(artikel)
+            valGjort = true
+          when 's'
+            valGjort = true
+          when 'a'
+            clearConsole()
+            exit()
+            valGjort = true
+        end
+      end
+    end
+  end
+  return true
+end
+
+
 options = {}
 options[:antal] = 100 #default
 OptionParser.new do |opts|
@@ -307,65 +353,65 @@ OptionParser.new do |opts|
 
 end.parse!
 
-Geocoder.configure(
+# Geocoder.configure(
 
-  # geocoding service (see below for supported options):
-  :lookup => :google,
+#   # geocoding service (see below for supported options):
+#   :lookup => :google,
 
-  # IP address geocoding service (see below for supported options):
-  :ip_lookup => :maxmind,
+#   # IP address geocoding service (see below for supported options):
+#   :ip_lookup => :maxmind,
 
-  # to use an API key:
-  :api_key => "AIzaSyBj8WqFaf4ovumLKyMA9vevFfuVLaHST5g",
+#   # to use an API key:
+#   :api_key => "AIzaSyBj8WqFaf4ovumLKyMA9vevFfuVLaHST5g",
 
-  # geocoding service request timeout, in seconds (default 3):
-  :timeout => 5,
+#   # geocoding service request timeout, in seconds (default 3):
+#   :timeout => 5,
 
-  # set default units to kilometers:
-  :units => :km,
+#   # set default units to kilometers:
+#   :units => :km,
 
-  # caching (see below for details):
-  :cache => {}
+#   # caching (see below for details):
+#   :cache => {}
 
-)
+# )
 
 clearConsole()
 
 # stores = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/stores/xml'))
-stores = Nokogiri::XML(File.open('stores.xml'))
-storeAddress = ""
-if(options[:system_bolag])
-  storesQuery = "//ButikOmbud[./Nr = '#{options[:system_bolag]}']/."
-  storesNoder = stores.xpath(storesQuery)
-  raise "Finns inget system med det nummret" unless storesNoder.length > 0
-  raise "Finns flera system med det nummret" unless storesNoder.length == 1
-  storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
-else
-  puts("Ange ortsnamn för önskat system eller ombud:")
-  ortsnamn = gets().chomp.upcase.tr('åäö','ÅÄÖ')
-  storesQuery = "//ButikOmbud[./Address4 = '#{ortsnamn}']/."
-  puts(storesQuery)
-  storesNoder = stores.xpath(storesQuery)
-  raise "Finns inget system eller ombud på den orten" unless storesNoder.length > 0
-  if (storesNoder.length > 1)
-    puts("Det finns flera ombud eller system på vald ort, vänligen välj vilken som ska användas:")
-    nummer = 1;
-    storesNoder.each do |storeNod|
-      puts("#{nummer}: #{storeNod.get_childnode_text('Namn')} #{storeNod.get_childnode_text('Address1')}")
-      nummer += 1
-    end
-    valtNummer = gets().chomp.to_i
-    storeAddress = storesNoder[valtNummer - 1].get_childnode_text('Address1') + " " + storesNoder[valtNummer - 1].get_childnode_text('Address4')
-  else
-    storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
-  end
-end
-puts storeAddress
-geo = Geocoder.search(storeAddress)
-ll = geo[0].data["geometry"]["location"]
-puts("#{ll['lat']} #{ll['lng']}")
-storeLocation =
-# storesQuery =
+# stores = Nokogiri::XML(File.open('stores.xml'))
+# storeAddress = ""
+# if(options[:system_bolag])
+#   storesQuery = "//ButikOmbud[./Nr = '#{options[:system_bolag]}']/."
+#   storesNoder = stores.xpath(storesQuery)
+#   raise "Finns inget system med det nummret" unless storesNoder.length > 0
+#   raise "Finns flera system med det nummret" unless storesNoder.length == 1
+#   storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
+# else
+#   puts("Ange ortsnamn för önskat system eller ombud:")
+#   ortsnamn = gets().chomp.upcase.tr('åäö','ÅÄÖ')
+#   storesQuery = "//ButikOmbud[./Address4 = '#{ortsnamn}']/."
+#   puts(storesQuery)
+#   storesNoder = stores.xpath(storesQuery)
+#   raise "Finns inget system eller ombud på den orten" unless storesNoder.length > 0
+#   if (storesNoder.length > 1)
+#     puts("Det finns flera ombud eller system på vald ort, vänligen välj vilken som ska användas:")
+#     nummer = 1;
+#     storesNoder.each do |storeNod|
+#       puts("#{nummer}: #{storeNod.get_childnode_text('Namn')} #{storeNod.get_childnode_text('Address1')}")
+#       nummer += 1
+#     end
+#     valtNummer = gets().chomp.to_i
+#     storeAddress = storesNoder[valtNummer - 1].get_childnode_text('Address1') + " " + storesNoder[valtNummer - 1].get_childnode_text('Address4')
+#   else
+#     storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
+#   end
+# end
+# puts storeAddress
+# geo = Geocoder.search(storeAddress)
+# ll = geo[0].data["geometry"]["location"]
+# puts("#{ll['lat']} #{ll['lng']}")
+# storeLocation =
+# # storesQuery =
 
 puts("Fetching and filtering search...")
 # products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
@@ -374,8 +420,8 @@ products = Nokogiri::XML(File.open('products.xml'))
 varugrupper = ['Porter', 'Ale', 'Stout', 'Specialöl', 'Spontanjäst']
 varugruppQuery = skapa_varugrupps_query(varugrupper).wrap_with_parenthesis()
 
-oönskadeSortiment = ['BS', 'TSLS', 'TSE']
-oönskadeSortimentQuery = skapa_oönskade_sortiment_query(oönskadeSortiment).wrap_with_parenthesis()
+# oönskadeSortiment = ['BS', 'TSLS', 'TSE']
+# oönskadeSortimentQuery = skapa_oönskade_sortiment_query(oönskadeSortiment).wrap_with_parenthesis()
 
 dagensDatum = DateTime.now
 sälstartsQuery = skapa_säljstarts_query(dagensDatum).wrap_with_parenthesis()
@@ -399,8 +445,9 @@ artikelNoder.each do |node|
 end
 filtreradeArtiklar = []
 saknarKollikrav = läs_in_saknar_kollikrav()
+gårAttBeställa = läs_in_går_att_beställa()
 artiklar.each do |artikel|
-  filtreradeArtiklar << artikel unless kollikrav(artikel, saknarKollikrav) #or (avståndskrav(artikel) and för_långt(valtSystem, artikel))
+  filtreradeArtiklar << artikel unless kollikrav(artikel, saknarKollikrav) or !går_att_beställa(artikel, gårAttBeställa) #or (avståndskrav(artikel) and för_långt(valtSystem, artikel))
 end
 
 valdaArtiklar = []
