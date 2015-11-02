@@ -8,6 +8,8 @@ require 'highline'
 require 'launchy'
 require 'mechanize'
 require "net/http"
+require 'geocoder'
+require 'redis'
 
 class String
   def wrap(pre, post)
@@ -305,6 +307,28 @@ OptionParser.new do |opts|
 
 end.parse!
 
+Geocoder.configure(
+
+  # geocoding service (see below for supported options):
+  :lookup => :google,
+
+  # IP address geocoding service (see below for supported options):
+  :ip_lookup => :maxmind,
+
+  # to use an API key:
+  :api_key => "AIzaSyBj8WqFaf4ovumLKyMA9vevFfuVLaHST5g",
+
+  # geocoding service request timeout, in seconds (default 3):
+  :timeout => 5,
+
+  # set default units to kilometers:
+  :units => :km,
+
+  # caching (see below for details):
+  :cache => {}
+
+)
+
 clearConsole()
 
 # stores = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/stores/xml'))
@@ -337,6 +361,10 @@ else
   end
 end
 puts storeAddress
+geo = Geocoder.search(storeAddress)
+ll = geo[0].data["geometry"]["location"]
+puts("#{ll['lat']} #{ll['lng']}")
+storeLocation =
 # storesQuery =
 
 puts("Fetching and filtering search...")
