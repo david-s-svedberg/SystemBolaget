@@ -180,7 +180,43 @@ end
 
 def generera_artikelhemsida(artikel)
   bas = "http://www.systembolaget.se/dryck/ol/"
-  rest = "#{artikel.namn.gsub('å', 'a').gsub('ä', 'a').gsub('ö', 'o').gsub(" &", '').gsub(' ', '-').gsub("'", '').gsub("´", '').gsub("è", 'e').gsub("ø", 'o').gsub("Ø", 'o').gsub("ë", 'e').gsub(":", '').gsub("é", 'e').gsub("ò", 'o').gsub(".", '').gsub("!", '').gsub("á", 'a').gsub("`", '').downcase}-#{artikel.nr}"
+  ersättningar = {
+    'å' => 'a',
+    'Å' => 'a',
+    'ä' => 'a',
+    'Ä' => 'a',
+    'á' => 'a',
+    'Á' => 'a',
+    'à' => 'a',
+    'À' => 'a',
+    'ö' => 'o',
+    'Ö' => 'o',
+    'ø' => 'o',
+    'Ø' => 'o',
+    'ó' => 'o',
+    'Ó' => 'o',
+    'ò' => 'o',
+    'Ò' => 'o',
+    'è' => 'e',
+    'È' => 'e',
+    'é' => 'e',
+    'É' => 'e',
+    'ë' => 'e',
+    'Ë' => 'e',
+    ' &' => '',
+    "'" => '',
+    "´" => '',
+    "`" => '',
+    ":" => '',
+    "." => '',
+    "!" => '',
+    ' ' => '-'
+  }
+  namn = artikel.namn
+  ersättningar.each do |key, value|
+    namn.gsub!(key, value)
+  end
+  rest = namn + "-#{artikel.nr}".downcase
   return bas + rest
 end
 
@@ -265,7 +301,7 @@ OptionParser.new do |opts|
 
   opts.on('-a', '--antal Antal', 'Antal artiklar som ska visas') { |v| options[:antal] = v }
   opts.on('-s', '--framtidasäljstart', 'Om produkter med framtida säljstart ska visas') { |v| options[:framtida_säljstart] = v }
-  opts.on('-b', '--butik Butik', 'Stad där system som ska levereras till ligger') { |v| options[:system_bolag] = v }
+  opts.on('-b', '--butik Nummer', 'Nummer på system eller ombud som ska levereras till ') { |v| options[:system_bolag] = v }
 
 end.parse!
 
@@ -281,7 +317,7 @@ clearConsole()
 # storesQuery = "//ButikOmbud[contains(./Address4/text(), #{options[:]}]/."
 
 puts("Fetching and filtering search...")
-#products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
+# products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
 products = Nokogiri::XML(File.open('products.xml'))
 
 varugrupper = ['Porter', 'Ale', 'Stout', 'Specialöl', 'Spontanjäst']
