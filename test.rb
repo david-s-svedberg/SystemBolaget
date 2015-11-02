@@ -305,16 +305,39 @@ OptionParser.new do |opts|
 
 end.parse!
 
-
-
 clearConsole()
 
-# if(!options[:system_bolag])
-#   puts("Ange namn på ort dit beställning ska göras")
-# end
-#systembolag = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/stores/xml'))
-# stores = Nokogiri::XML(File.open('stores.xml'))
-# storesQuery = "//ButikOmbud[contains(./Address4/text(), #{options[:]}]/."
+# stores = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/stores/xml'))
+stores = Nokogiri::XML(File.open('stores.xml'))
+storeAddress = ""
+if(options[:system_bolag])
+  storesQuery = "//ButikOmbud[./Nr = '#{options[:system_bolag]}']/."
+  storesNoder = stores.xpath(storesQuery)
+  raise "Finns inget system med det nummret" unless storesNoder.length > 0
+  raise "Finns flera system med det nummret" unless storesNoder.length == 1
+  storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
+else
+  puts("Ange ortsnamn för önskat system eller ombud:")
+  ortsnamn = gets().chomp.upcase.tr('åäö','ÅÄÖ')
+  storesQuery = "//ButikOmbud[./Address4 = '#{ortsnamn}']/."
+  puts(storesQuery)
+  storesNoder = stores.xpath(storesQuery)
+  raise "Finns inget system eller ombud på den orten" unless storesNoder.length > 0
+  if (storesNoder.length > 1)
+    puts("Det finns flera ombud eller system på vald ort, vänligen välj vilken som ska användas:")
+    nummer = 1;
+    storesNoder.each do |storeNod|
+      puts("#{nummer}: #{storeNod.get_childnode_text('Namn')} #{storeNod.get_childnode_text('Address1')}")
+      nummer += 1
+    end
+    valtNummer = gets().chomp.to_i
+    storeAddress = storesNoder[valtNummer - 1].get_childnode_text('Address1') + " " + storesNoder[valtNummer - 1].get_childnode_text('Address4')
+  else
+    storeAddress = storesNoder[0].get_childnode_text('Address1') + " " + storesNoder[0].get_childnode_text('Address4')
+  end
+end
+puts storeAddress
+# storesQuery =
 
 puts("Fetching and filtering search...")
 # products = Nokogiri::XML(open('http://www.systembolaget.se/api/assortment/products/xml'))
