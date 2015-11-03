@@ -1,0 +1,3 @@
+class ArtikelHämtare
+
+end
