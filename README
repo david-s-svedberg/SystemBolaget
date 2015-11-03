@@ -38,3 +38,81 @@ TODO:
 * Börja strukturera om koden i klasser för att inte bli galen
 * Spara undan valda, skippade och uteslutna artiklar
 * Skrapa artikel sida (/namn(bindesträck=mellanslag, åäö=aao)-nr) för att kolla artikelbegränsning
+
+
+Refactoring:
+Main
+  ArgumentParser.parse(String[])
+  ValGivare = new Valgivare(ArgumentParser)
+  setupObjectGraph
+  SystemSökConsoleApp.run()
+
+  ArgumentParser
+
+  SystemSökConsoleApp
+    AnvändareInformerare.informeraOmStart()
+    ArtikelHämtare.hämtaArtiklar() : Artikel []
+    ArtikelPresenterare.visaArtiklarFörAnvändaren(Artikel [])
+
+    AnvändareInformerare
+      ConsoleOutput
+
+    ArtikelHämtare
+      XpathQueryGenerator.genereraQuery() : String
+      utförQuery(String) : NodeSet
+      ArtikelFactory.skapaArtiklarFrånNoder(NodeSet) : Artikel []
+
+      XpathQueryGenerator
+        ValGivare.valdaVarugrupper() : String []
+        ValGivare.visaArtiklarMedFramtidaSäljstart? : Boolean
+        ValGivare.dagensDatum() : Date
+        ValGivare.begränsaSortimen()? : Boolean
+        ValGivare.oönskadeSortiment() : String []
+        ValGivare.uteslutTidigareTillagdaArtiklar? : Boolean
+        ArtikelNrGivare.tidigareTillagdaArtikelNr() : String []
+        ArtikelNrGivare.uteslutnaArtikelNr() : String []
+
+        ValGivare
+        ArtikelNrGivare
+
+      ArtikelFactory
+
+
+    ArtikelPresenterare
+
+      ArtikelFiltrerare.skaVisas?(Artikel) : Boolean
+      visaArtikelInformation(v)
+      AnvändareFrågare.begärValFörVisadArtikel() : String
+      ArtikelHemsidoVisare.visaHemsida(Artikel)
+      ArtikelNrSparare.sparaUteslutenArtikel(Artikel)
+      ArtikelNrSparare.sparaTillagdArtikel(Artikel)
+
+
+      ArtikelFiltrerare
+        ValGivare.visaArtiklarMedKollikrav? : Boolean
+        ArtikelNrGivare.artikelNrUtanKollikravVidTidigareKörning() : String []
+        ValGivare.visaArtiklarSomEjGårAttBeställa? : Boolean
+        ArtikelNrGivare.artikelNrSomGårAttBeställaVidTidigareKörning() : String []
+        ValGivare.visaArtiklarSomÄrTillfälligtSlut? : Boolean
+        HemsidoKontrollerare.uppfyllerKraven?(Artikel, :utan_kollikrav, :går_att_beställa, :ej_slut)
+
+        ValGivare
+        ArtikelNrSparare
+        ArtikelNrGivare
+        HemsidoKontrollerare
+          WebsiteURLGenerator.genereraArtikelURL(Artikel) : String
+          AnvändareInformerare.hemsidaFinnsInte(String)
+          AnvändareFrågare.visaValFörSaknadHemsida()
+          ArtikelNrSparare.sparaUteslutenArtikel(Artikel)
+          ArtikelNrSparare.sparaArtikelUtanKolliKrav(Artikel)
+          ArtikelNrSparare.sparaArtikelSomGårAttBeställa(Artikel)
+
+          WebsiteURLGenerator
+          AnvändareFrågare
+          AnvändareInformerare
+          ArtikelNrSparare
+
+      AnvändareFrågare
+      ArtikelHemsidoVisare
+        WebsiteURLGenerator
+      ArtikelNrSparare
