@@ -11,39 +11,41 @@ class XpathQueryGenerator
     queryDelar << skapa_varugrupp_query().wrap_with_parenthesis() unless !@valGivare.begränsa_varugrupper?()
     queryDelar << skapa_oönskade_sortiment_query().wrap_with_parenthesis() unless !@valGivare.begränsa_sortimen?()
     queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart()
-    queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?
+    queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?()
+    queryDelar << skapa_uteslutna_query().wrap_with_parenthesis()
+    return "//artikel[#{queryDelar.join(' and ')}]/."
   end
 
   private
 
+    REPLACE_STRING = "REPLACE_STRING"
+
     def skapa_varugrupp_query()
-      valdaVarugrupper = @valGivare.valda_varugrupper()
-      delar = []
-      valdaVarugrupper.each do |varugrupp|
-        delar << "contains(./Varugrupp/text(), '#{varugrupp}')"
-      end
-      return delar.join(' or ')
+      return format_and_join(@valGivare.valda_varugrupper(), "contains(./Varugrupp/text(), 'REPLACE_STRING')", ' or ')
     end
 
     def skapa_oönskade_sortiment_query()
-      oönskadeSortiment = @valGivare.oönskade_sortiment()
-      delar = []
-      oönskadeSortiment.each do |sortiment|
-        delar << "./Sortiment = '#{sortiment}'"
-      end
-      return delar.join(' or ').wrap('not(', ')')
+      return format_and_join(@valGivare.oönskade_sortiment(), "./Sortiment = 'REPLACE_STRING'", ' or ').wrap('not(', ')')
     end
 
     def skapa_uteslut_tidigare_tillagda_query()
-      tidigareTillagdaArtikelNr = @artikelNrGivare.tidigare_tillagda_artikel_nr()
+      return skapa_not_nr_query(@artikelNrGivare.tidigare_tillagda_artikel_nr())
+    end
+
+    def skapa_uteslutna_query()
+      return skapa_not_nr_query(@artikelNrGivare.uteslutna_artikel_nr())
     end
 
     def skapa_not_nr_query(artiklar)
+      return format_and_join(artiklar, "./nr = REPLACE_STRING", ' or ').wrap('not(', ')')
+    end
+
+    def format_and_join(stringArray, formatString, joinString)
       arr = []
-      artiklar.each do |artikel|
-        arr << "./nr = #{artikel}"
+      stringArray.each do |str|
+        arr << formatString.sub(REPLACE_STRING, str)
       end
-      return arr.join(' or ').wrap('not(', ')')
+      return arr.join(joinString)
     end
 
     def skapa_säljstarts_query()

@@ -14,14 +14,9 @@ class AnvändarInformerare
     puts("Websidan finns inte: #{url}")
   end
 
-  def filtrerar()
+  def filtrerar(antalBortfiltrerare)
     clear_console()
-    puts("Filtrerar...")
-  end
-
-  def hittat_artikel()
-    clear_console()
-    puts("Har hittat artikel!")
+    puts("Filtrerar... (#{antalBortfiltrerare} bortfiltrerare)")
   end
 
   private

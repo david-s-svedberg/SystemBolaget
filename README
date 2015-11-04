@@ -84,7 +84,6 @@ Main
     ArtikelPresenterare
       AnvändareInformerare.filtrerar()
       ArtikelFiltrerare.skaVisas?(Artikel) : Boolean
-      AnvändareInformerare.hittatArtikel()
       visaArtikelInformation(Artikel)
       AnvändareFrågare.begärValFörVisadArtikel() : String
       ArtikelHemsidoVisare.visaHemsida(Artikel)

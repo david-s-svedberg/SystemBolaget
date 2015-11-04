@@ -8,6 +8,10 @@ class ArtikelNrGivare
     return läs_in_artikel_nr_från_fil(@filNamnHållare::TIDIGARE_TILLAGDA)
   end
 
+  def uteslutna_artikel_nr()
+    return läs_in_artikel_nr_från_fil(@filNamnHållare::UTESLUTNA)
+  end
+
   private
 
     def läs_in_artikel_nr_från_fil(filnamn)
