@@ -1,0 +1,3 @@
+class ArtikelFactory
+
+end

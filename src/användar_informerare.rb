@@ -14,6 +14,16 @@ class AnvändarInformerare
     puts("Websidan finns inte: #{url}")
   end
 
+  def filtrerar()
+    clear_console()
+    puts("Filtrerar...")
+  end
+
+  def hittat_artikel()
+    clear_console()
+    puts("Har hittat artikel!")
+  end
+
   private
     def clear_console()
       puts "\e[H\e[2J"

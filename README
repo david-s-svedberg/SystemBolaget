@@ -43,29 +43,32 @@ TODO:
 Refactoring:
 Main
   ArgumentParser.parse(String[])
-  ValGivare = new Valgivare(ArgumentParser)
-  setupObjectGraph
-  SystemSökConsoleApp.run()
+  ObjectGraphFactory.createApp() : SystemSökApp
+  SystemSökApp.run()
 
-  ArgumentParser
+  ObjectGraphFactory
 
-  SystemSökConsoleApp
-    AnvändareInformerare.informeraOmStart()
+  SystemSökApp
+    AnvändareInformerare.hämtarArtiklar()
     ArtikelHämtare.hämtaArtiklar() : Artikel []
+    AnvändareInformerare.artiklarHämtade()
     ArtikelPresenterare.visaArtiklarFörAnvändaren(Artikel [])
 
     AnvändareInformerare
-      ConsoleOutput
 
     ArtikelHämtare
+      XMLHämtare.hämta() : String
       XpathQueryGenerator.genereraQuery() : String
-      utförQuery(String) : NodeSet
+      utförQuery(String, String) : NodeSet
       ArtikelFactory.skapaArtiklarFrånNoder(NodeSet) : Artikel []
 
+      XMLHämtare
+
       XpathQueryGenerator
+
         ValGivare.valdaVarugrupper() : String []
         ValGivare.visaArtiklarMedFramtidaSäljstart? : Boolean
-        ValGivare.dagensDatum() : Date
+        DatumGivare.dagensDatum() : Date
         ValGivare.begränsaSortimen()? : Boolean
         ValGivare.oönskadeSortiment() : String []
         ValGivare.uteslutTidigareTillagdaArtiklar? : Boolean
@@ -73,20 +76,20 @@ Main
         ArtikelNrGivare.uteslutnaArtikelNr() : String []
 
         ValGivare
+        DatumGivare
         ArtikelNrGivare
 
       ArtikelFactory
 
-
     ArtikelPresenterare
-
+      AnvändareInformerare.filtrerar()
       ArtikelFiltrerare.skaVisas?(Artikel) : Boolean
-      visaArtikelInformation(v)
+      AnvändareInformerare.hittatArtikel()
+      visaArtikelInformation(Artikel)
       AnvändareFrågare.begärValFörVisadArtikel() : String
       ArtikelHemsidoVisare.visaHemsida(Artikel)
       ArtikelNrSparare.sparaUteslutenArtikel(Artikel)
       ArtikelNrSparare.sparaTillagdArtikel(Artikel)
-
 
       ArtikelFiltrerare
         ValGivare.visaArtiklarMedKollikrav? : Boolean

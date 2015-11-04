@@ -1,3 +1,5 @@
+require 'optparse'
+
 class ValGivare
 
   def initialize()
@@ -25,12 +27,12 @@ class ValGivare
 
   end
 
-  def valda_varugrupper()
-    return @varugrupper
+  def begränsa_varugrupper?()
+    return !@varugrupper.empty?
   end
 
-  def visa_artiklar_med_framtida_säljstart?()
-    return @visaArtiklarMedFramtidaSäljstart
+  def valda_varugrupper()
+    return @varugrupper
   end
 
   def begränsa_sortimen?()
@@ -41,8 +43,12 @@ class ValGivare
     return @oönskadeSortiment
   end
 
-  def uteslut_tidigare_tillagda_artiklar?
-    return @utesluttillagda
+  def visa_artiklar_med_framtida_säljstart?()
+    return @visaArtiklarMedFramtidaSäljstart
+  end
+
+  def visa_tidigare_tillagda_artiklar?
+    return @visaTidigatillagda
   end
 
   def visa_artiklar_med_kollikrav?

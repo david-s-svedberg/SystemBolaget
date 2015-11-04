@@ -377,7 +377,7 @@ varugrupper = ['Porter', 'Ale', 'Stout', 'Specialöl', 'Spontanjäst']
 varugruppQuery = skapa_varugrupps_query(varugrupper).wrap_with_parenthesis()
 
 # oönskadeSortiment = ['BS', 'TSLS', 'TSE']
-# oönskadeSortimentQuery = skapa_oönskade_sortiment_query(oönskadeSortiment).wrap_with_parenthesis()
+oönskadeSortimentQuery = skapa_oönskade_sortiment_query(oönskadeSortiment).wrap_with_parenthesis()
 
 dagensDatum = DateTime.now
 sälstartsQuery = skapa_säljstarts_query(dagensDatum).wrap_with_parenthesis()
