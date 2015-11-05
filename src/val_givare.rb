@@ -47,22 +47,20 @@ class ValGivare
     return @visaArtiklarMedFramtidaSäljstart
   end
 
-  def visa_tidigare_tillagda_artiklar?
-    return @visaTidigatillagda
+  def visa_tidigare_tillagda_artiklar?()
+    return @visaTidigaTillagda
   end
 
-  def visa_artiklar_med_kollikrav?
+  def visa_artiklar_med_kollikrav?()
     return @visaArtiklarMedKollikrav
   end
 
-  def visa_artiklar_som_ej_går_att_beställa?
+  def visa_artiklar_som_ej_går_att_beställa?()
     return @visaArtiklarSomEjGårAttBeställa
   end
 
-  def visa_artiklar_som_är_tillfälligt_slut?
+  def visa_artiklar_som_är_tillfälligt_slut?()
     return @visaArtiklarSomÄrTillfälligtSlut
   end
-
-
 
 end

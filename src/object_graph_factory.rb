@@ -45,12 +45,13 @@ class ObjectGraphFactory
               get_användar_informerare(), \
               ArtikelFiltrerare.new( \
                 get_val_givare(), \
-                get_artikel_nr_givare(), \
                 HemsidoKontrollerare.new( \
+                  get_val_givare(), \
                   get_website_url_generator(), \
                   get_användar_informerare(), \
                   get_användar_frågare(), \
                   get_artikel_nr_sparare() \
+                  get_artikel_nr_givare(), \
                 ) \
               ), \
               get_användar_frågare(), \

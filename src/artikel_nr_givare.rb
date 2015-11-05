@@ -12,6 +12,14 @@ class ArtikelNrGivare
     return läs_in_artikel_nr_från_fil(@filNamnHållare::UTESLUTNA)
   end
 
+  def artikel_nr_som_visats_sakna_kollikrav()
+    return läs_in_artikel_nr_från_fil(@filNamnHållare::KOLLIKRAV_SAKNAS)
+  end
+
+  def artikel_nr_som_visats_vara_beställningsbara()
+    return läs_in_artikel_nr_från_fil(@filNamnHållare::BESTÄLLNINGSBARA)
+  end
+
   private
 
     def läs_in_artikel_nr_från_fil(filnamn)

@@ -12,7 +12,7 @@ class ArtikelPresenterare
     antalBortfiltrerade = 0
     artiklar.each do |artikel|
       @användarInformerare.filtrerar(antalBortfiltrerade)
-      if(@artikelFiltrerare.ska_visas?)
+      if(@artikelFiltrerare.ska_visas?())
         visa_artikel(artikel)
         hantera_användarens_val(@användarFrågare.begär_val_för_visad_artikel(), artikel)
       else
@@ -41,10 +41,14 @@ class ArtikelPresenterare
       case val
       when :lägg_till
         @valdaArtiklarHållare.lägg_till(artikel)
+        @artikelNrSparare.spara_tillagd_artikel(artikel)
       when :öppna_hemsida
         @artikelHemsidoVisare.visa(artikel)
       when :uteslut
-
+        @artikelNrSparare.spara_utesluten_artikel(artikel)
+      when :skippa
+      when :avsluta
+        exit()
       end
     end
 
