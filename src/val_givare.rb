@@ -20,8 +20,8 @@ class ValGivare
       opts.on('-kk', '--kollikrav', 'Visa artiklar som har ett kollikrav ') { @visaArtiklarMedKollikrav = true }
       opts.on('-eb', '--ejbeställlbara', 'Visa artiklar som ej går att beställa då de bara får säljas till ett systembolag ') { @visaArtiklarSomEjGårAttBeställa = true }
       opts.on('-ts', '--tillfälligtslut', 'Visa artiklar som är tillfälligt slut') { @visaArtiklarSomÄrTillfälligtSlut = true }
-      opts.on('--oönskadeSortiment x,y,y', 'Lista av sortiment som inte är önskvärda') { |oönskadeSortiment| @oönskadeSortiment = oönskadeSortiment }
-      opts.on('--varugrupper x,y,y', 'Lista av varugrupper som ska visas') { |varugrupper| @varugrupper = varugrupper }
+      opts.on('--oönskadeSortiment x,y,y', Array, 'Lista av sortiment som inte är önskvärda') { |oönskadeSortiment| @oönskadeSortiment = oönskadeSortiment }
+      opts.on('--varugrupper x,y,y', Array, 'Lista av varugrupper som ska visas') { |varugrupper| @varugrupper = varugrupper }
 
     end.parse!
 
@@ -36,7 +36,7 @@ class ValGivare
   end
 
   def begränsa_sortimen?()
-    return oönskadeSortiment.empty?
+    return !@oönskadeSortiment.empty?
   end
 
   def oönskade_sortiment()

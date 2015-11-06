@@ -1,3 +1,5 @@
+require_relative '../lib/core_ext/string'
+
 class XpathQueryGenerator
 
   def initialize(valGivare, datumGivare, artikelNrGivare)
@@ -10,7 +12,7 @@ class XpathQueryGenerator
     queryDelar = []
     queryDelar << skapa_varugrupp_query().wrap_with_parenthesis() unless !@valGivare.begränsa_varugrupper?()
     queryDelar << skapa_oönskade_sortiment_query().wrap_with_parenthesis() unless !@valGivare.begränsa_sortimen?()
-    queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart()
+    queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart?()
     queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?()
     queryDelar << skapa_uteslutna_query().wrap_with_parenthesis()
     return "//artikel[#{queryDelar.join(' and ')}]/."

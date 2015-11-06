@@ -1,3 +1,5 @@
+require 'io/console'
+
 class AnvändarFrågare
 
   def begär_val_för_visad_artikel()
@@ -5,18 +7,38 @@ class AnvändarFrågare
     ret = nil
 
     while(ret == nil)
-      val = STDIN.getch
+      val = STDIN.getch.downcase!
       case val
-        when 'l'
-          ret = :lägg_till
-        when 'ö'
-          ret = :öppna_hemsida
-        when 'u'
-          ret = :uteslut
-        when 's'
-          ret = :skippa
-        when 'a'
-          ret = :avsluta
+      when 'l'
+        ret = :lägg_till
+      when 'ö'
+        ret = :öppna_hemsida
+      when 'u'
+        ret = :uteslut
+      when 's'
+        ret = :skippa
+      when 'a'
+        ret = :avsluta
+      end
+    end
+
+    return ret
+  end
+
+  def begär_val_för_felaktig_hemsida()
+    puts("Välj mellan: [V]isa artikel, [S]kippa, [U]teslut eller [A]vbryt.")
+    ret = nil
+    while(ret == nil)
+      val = STDIN.getch.downcase!
+      case val
+      when 'v'
+        ret = :visa_artikel
+      when 'u'
+        ret = :uteslut
+      when 's'
+        ret = :skippa
+      when 'a'
+        ret = :avsluta
       end
     end
 

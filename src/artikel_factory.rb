@@ -12,7 +12,7 @@ class ArtikelFactory
 
   private
 
-    def skapa_artikel(nod)
+    def skapa_artikel(node)
       nr = node.get_childnode_text('nr')
       artikelId = node.get_childnode_text('Artikelid')
       namn = node.get_childnode_text('Namn')

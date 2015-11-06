@@ -1,3 +1,5 @@
+require 'logger'
+
 require_relative 'användar_frågare'
 require_relative 'användar_informerare'
 require_relative 'artikel_factory'
@@ -50,8 +52,8 @@ class ObjectGraphFactory
                   get_website_url_generator(), \
                   get_användar_informerare(), \
                   get_användar_frågare(), \
-                  get_artikel_nr_sparare() \
-                  get_artikel_nr_givare(), \
+                  get_artikel_nr_sparare(), \
+                  get_artikel_nr_givare() \
                 ) \
               ), \
               get_användar_frågare(), \
@@ -71,18 +73,13 @@ class ObjectGraphFactory
     end
 
     def get_val_givare()
-      @valGivare = ValGivare.new() unless @valgivare != nil
-      return @valgivare
+      @valGivare = ValGivare.new() unless @valGivare != nil
+      return @valGivare
     end
 
     def get_artikel_nr_givare()
-      @artikelNrGivare = ArtikelNrGivare.new(get_filnamn_hållare()) unless @artikelNrGivare != nil
+      @artikelNrGivare = ArtikelNrGivare.new() unless @artikelNrGivare != nil
       return @artikelNrGivare
-    end
-
-    def get_filnamn_hållare()
-      @filNamnHållare = FilNamnHållare.new() unless @filNamnHållare != nil
-      return @filNamnHållare
     end
 
     def get_användar_frågare()
@@ -96,7 +93,7 @@ class ObjectGraphFactory
     end
 
     def get_artikel_nr_sparare()
-      @artikelNrSparare = ArtikelNrSparare.new(get_filnamn_hållare()) unless @artikelNrSparare != nil
+      @artikelNrSparare = ArtikelNrSparare.new() unless @artikelNrSparare != nil
       return @artikelNrSparare
     end
 

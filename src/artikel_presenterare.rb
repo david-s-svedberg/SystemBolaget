@@ -12,7 +12,7 @@ class ArtikelPresenterare
     antalBortfiltrerade = 0
     artiklar.each do |artikel|
       @användarInformerare.filtrerar(antalBortfiltrerade)
-      if(@artikelFiltrerare.ska_visas?())
+      if(@artikelFiltrerare.ska_visas?(artikel))
         visa_artikel(artikel)
         hantera_användarens_val(@användarFrågare.begär_val_för_visad_artikel(), artikel)
       else
@@ -22,7 +22,7 @@ class ArtikelPresenterare
   end
 
   private
-    def visa_artikel()
+    def visa_artikel(artikel)
       puts(artikel.namn)
       puts(artikel.namn2)
       puts()
