@@ -16,9 +16,9 @@ class ArtikelFiltrerare
   private
 
     def någon_filtrering_aktiv?()
-      return @valGivare.visa_artiklar_med_kollikrav?() || \
-             @valGivare.visa_artiklar_som_ej_går_att_beställa?() || \
-             @valGivare.visa_artiklar_som_är_tillfälligt_slut?()
+      return !@valGivare.visa_artiklar_med_kollikrav?() || \
+             !@valGivare.visa_artiklar_som_ej_går_att_beställa?() || \
+             !@valGivare.visa_artiklar_som_är_tillfälligt_slut?()
     end
 
 end

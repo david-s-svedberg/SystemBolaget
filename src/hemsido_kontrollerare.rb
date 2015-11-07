@@ -1,3 +1,4 @@
+require 'io/console'
 require 'open-uri'
 require "net/http"
 
@@ -16,15 +17,16 @@ class HemsidoKontrollerare
     return false if kontroll_ska_göras_på_något_som_sen_tidigare_visats_falera(artikel)
 
     ret = true
-    url = @websiteURLGenerator.generera()
-    if(hemsidaFinns(url))
+    url = @websiteURLGenerator.generera(artikel)
+    if(hemsida_finns?(url))
       webContent = hämta_hemsida(url)
       ret = passerar_alla_valda_kontroller?(artikel, webContent)
     else
       @användarInformerare.hemsida_finns_inte(url)
+      @användarInformerare.val_för_felaktig_hemsida()
       val = @användarFrågare.begär_val_för_felaktig_hemsida()
       hantera_användarens_val(artikel, val)
-      if(val != :visa_artikel)
+      if(val != 'v')
         ret = false
       end
     end
@@ -42,8 +44,8 @@ class HemsidoKontrollerare
     end
 
     def kontroll_ska_göras_på_något_som_sen_tidigare_visats_falera(artikel)
-      return (kontrollera_kollikrav?() && har_sen_tidigare_visats_ha_kollikrav?(artikel)) || \
-             (kontrollera_beställningsbarhet?() && har_sen_tidigare_visats_vara_icke_beställningsbar?(artikel))
+      return (kontrollera_kollikrav?(artikel) && har_sen_tidigare_visats_ha_kollikrav?(artikel)) || \
+             (kontrollera_beställningsbarhet?(artikel) && har_sen_tidigare_visats_vara_icke_beställningsbar?(artikel))
     end
 
     def hämta_hemsida(url)
@@ -64,7 +66,7 @@ class HemsidoKontrollerare
              !har_sen_tidigare_visats_sakna_kollikrav?(artikel)
     end
 
-    def kontrollera_beställningsbarhet?()
+    def kontrollera_beställningsbarhet?(artikel)
       return !@valGivare.visa_artiklar_som_ej_går_att_beställa?() && \
               är_lokalt_och_småskaligt_sortiment?(artikel) && \
              !har_sen_tidigare_visats_vara_beställningsbar?(artikel)
@@ -79,19 +81,19 @@ class HemsidoKontrollerare
     end
 
     def har_sen_tidigare_visats_vara_icke_beställningsbar?(artikel)
-      return @artikelNrGivare.artikel_nr_som_visats_vara_icke_beställningsbara().contains(artikel.nr)
+      return @artikelNrGivare.artikel_nr_som_visats_vara_icke_beställningsbara().include?(artikel.nr)
     end
 
     def har_sen_tidigare_visats_vara_beställningsbar?(artikel)
-      return @artikelNrGivare.artikel_nr_som_visats_vara_beställningsbara().contains(artikel.nr)
+      return @artikelNrGivare.artikel_nr_som_visats_vara_beställningsbara().include?(artikel.nr)
     end
 
     def har_sen_tidigare_visats_sakna_kollikrav?(artikel)
-      return @artikelNrGivare.artikel_nr_som_visats_sakna_kollikrav().contains(artikel.nr)
+      return @artikelNrGivare.artikel_nr_som_visats_sakna_kollikrav().include?(artikel.nr)
     end
 
     def har_sen_tidigare_visats_ha_kollikrav?(artikel)
-      return @artikelNrGivare.artikel_nr_som_visats_ha_kollikrav.contains(artikel.nr)
+      return @artikelNrGivare.artikel_nr_som_visats_ha_kollikrav.include?(artikel.nr)
     end
 
     def passerar_kollikrav_kontroll?(artikel, webContent)
@@ -144,9 +146,9 @@ class HemsidoKontrollerare
 
     def hantera_användarens_val(artikel, val)
       case val
-      when :uteslut
+      when 'u'
         @artikelNrSparare.spara_utesluten_artikel(artikel)
-      when :avsluta
+      when 'a'
         exit()
       end
     end

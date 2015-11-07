@@ -1,5 +1,3 @@
-require 'logger'
-
 require_relative 'användar_frågare'
 require_relative 'användar_informerare'
 require_relative 'artikel_factory'
@@ -14,10 +12,10 @@ require_relative 'fil_namn_hållare'
 require_relative 'hemsido_kontrollerare'
 require_relative 'system_sök_app'
 require_relative 'val_givare'
+require_relative 'valda_artiklar_hållare'
 require_relative 'website_url_generator'
 require_relative 'xml_hämtare'
 require_relative 'xpath_query_generator'
-
 
 class ObjectGraphFactory
 
@@ -60,7 +58,8 @@ class ObjectGraphFactory
               ArtikelHemsidoVisare.new( \
                 get_website_url_generator() \
               ), \
-              get_artikel_nr_sparare() \
+              get_artikel_nr_sparare(), \
+              ValdaArtiklarHållare.new()
             ) \
           )
   end

@@ -1,5 +1,7 @@
 require_relative 'fil_namn_hållare'
 
+require 'fileutils'
+
 class ArtikelNrSparare
 
   def spara_tillagd_artikel(artikel)
@@ -22,15 +24,27 @@ class ArtikelNrSparare
     spara_artikel_nr_om_det_inte_redan_är_sparat(artikel, FilNamnHållare::BESTÄLLNINGSBARA)
   end
 
+  def spara_inte_beställningsbar(artikel)
+    spara_artikel_nr_om_det_inte_redan_är_sparat(artikel, FilNamnHållare::INTE_BESTÄLLNINGSBARA)
+  end
+
   def spara_artikel_nr(artikel, filnamn)
-    File.open(filnamn, "a") do |file|
+    make_sure_bin_dir_exists()
+    File.open(filnamn, "a+") do |file|
       file.puts(artikel.nr)
     end
   end
 
   def spara_artikel_nr_om_det_inte_redan_är_sparat(artikel, filnamn)
+    make_sure_bin_dir_exists()
     File.open(filnamn, "a+") do |file|
       file.puts(artikel.nr) unless file.read.include?(artikel.nr)
+    end
+  end
+
+  def make_sure_bin_dir_exists()
+    unless File.directory?(FilNamnHållare::BIN_PATH)
+      FileUtils.mkdir_p(FilNamnHållare::BIN_PATH)
     end
   end
 

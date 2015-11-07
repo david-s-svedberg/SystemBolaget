@@ -1,11 +1,12 @@
 class ArtikelPresenterare
 
-  def initialize(användarInformerare, artikelFiltrerare, användarFrågare, artikelHemsidoVisare, artikelNrSparare)
+  def initialize(användarInformerare, artikelFiltrerare, användarFrågare, artikelHemsidoVisare, artikelNrSparare, valdaArtiklarHållare)
     @användarInformerare = användarInformerare
     @artikelFiltrerare = artikelFiltrerare
     @användarFrågare = användarFrågare
     @artikelHemsidoVisare = artikelHemsidoVisare
     @artikelNrSparare = artikelNrSparare
+    @valdaArtiklarHållare = valdaArtiklarHållare
   end
 
   def presentera_artiklar(artiklar)
@@ -13,8 +14,9 @@ class ArtikelPresenterare
     artiklar.each do |artikel|
       @användarInformerare.filtrerar(antalBortfiltrerade)
       if(@artikelFiltrerare.ska_visas?(artikel))
+        @användarInformerare.clear_console()
         visa_artikel(artikel)
-        hantera_användarens_val(@användarFrågare.begär_val_för_visad_artikel(), artikel)
+        begär_val_från_användaren(artikel)
       else
         antalBortfiltrerade += 1
       end
@@ -37,17 +39,26 @@ class ArtikelPresenterare
       end
     end
 
+    def begär_val_från_användaren(artikel)
+      @användarInformerare.val_för_visad_artikel()
+      val = ''
+      while(!val.match("l|u|s|a"))
+        val = @användarFrågare.begär_val_för_visad_artikel()
+        hantera_användarens_val(val, artikel)
+      end
+    end
+
     def hantera_användarens_val(val, artikel)
       case val
-      when :lägg_till
+      when 'l'
         @valdaArtiklarHållare.lägg_till(artikel)
         @artikelNrSparare.spara_tillagd_artikel(artikel)
-      when :öppna_hemsida
+      when 'ö'
         @artikelHemsidoVisare.visa(artikel)
-      when :uteslut
+      when 'u'
         @artikelNrSparare.spara_utesluten_artikel(artikel)
-      when :skippa
-      when :avsluta
+      when 's'
+      when 'a'
         exit()
       end
     end

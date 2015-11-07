@@ -19,9 +19,16 @@ class AnvändarInformerare
     puts("Filtrerar... (#{antalBortfiltrerare} bortfiltrerare)")
   end
 
-  private
-    def clear_console()
-      puts "\e[H\e[2J"
-    end
+  def val_för_visad_artikel()
+    puts("Välj mellan: [L]ägg till, [S]kippa, [U]teslut, [Ö]ppna hemsida eller [A]vbryt.")
+  end
+
+  def val_för_felaktig_hemsida()
+    puts("Välj mellan: [V]isa artikel, [S]kippa, [U]teslut eller [A]vbryt.")
+  end
+
+  def clear_console()
+    puts "\e[H\e[2J"
+  end
 
 end
