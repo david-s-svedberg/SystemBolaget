@@ -13,7 +13,7 @@ module ArtikelTestHelper
   end
 
   def skapa_artikel(nr: 1000, artikelId: 1000, namn: 'Artikel namn', namn2: 'Artikel namn 2', pris: 123.45, volym: 330, prisPerLiter: 997.8, säljstart: DateTime.new(2000,1,1), varugrupp: 'Öl', förpackning: 'flaska', ursprungsstad: 'Malmö', ursprungsland: 'Sverige', producent: 'Röstånga Raj Raj', alkoholhalt: '5.00%', sortiment: 'FS', ekologiskt: false, råvarorBeskrivning: 'Råvarubeskrivning')
-    return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
+    return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart.to_date.to_datetime, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
   end
 
   def dölj_utskrifter()
@@ -37,6 +37,23 @@ module ArtikelTestHelper
     ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(true)
   end
 
+  def filtrera_varugrupp(*varugrupper)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:begränsa_varugrupper?).returns(true)
+    ValGivare.any_instance.stubs(:valda_varugrupper).returns(varugrupper)
+  end
+
+  def filtrera_sortiment(*sortiment)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:begränsa_sortimen?).returns(true)
+    ValGivare.any_instance.stubs(:oönskade_sortiment).returns(sortiment)
+  end
+
+  def filtrera_säljstart()
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_med_framtida_säljstart?).returns(false)
+  end
+
   def sätt_upp_artiklar(*artiklar)
     artikelArray = []
     artiklar.each do |artikel|
@@ -51,14 +68,14 @@ module ArtikelTestHelper
     AnvändarFrågare.any_instance.stubs(:begär_val_för_visad_artikel).returns('l')
   end
 
-  def verifiera_antal_artiklar(nbrOfTimes)
-    ValdaArtiklarHållare.any_instance.expects(:lägg_till).with(any_parameters()).times(nbrOfTimes)
+  def verifiera_valda_artiklar(*artiklar)
+    ValdaArtiklarHållare.any_instance.expects(:lägg_till).times(artiklar.length).with(any_of(*artiklar))
   end
 
   def get_artikel_xml(artikel)
     return "<artikel>" \
         "<nr>#{artikel.nr}</nr>" \
-        "<Artikelid></Artikelid>" \
+        "<Artikelid>#{artikel.artikelid}</Artikelid>" \
         "<Varnummer></Varnummer>" \
         "<Namn>#{artikel.namn}</Namn>" \
         "<Namn2>#{artikel.namn2}</Namn2>" \
@@ -68,18 +85,19 @@ module ArtikelTestHelper
         "<Saljstart>#{artikel.säljstart.strftime("%Y-%m-%d")}</Saljstart>" \
         "<Slutlev/>" \
         "<Varugrupp>#{artikel.varugrupp}</Varugrupp>" \
-        "<Forpackning></Forpackning>" \
+        "<Forpackning>#{artikel.förpackning}</Forpackning>" \
         "<Forslutning/>" \
-        "<Ursprung></Ursprung>" \
-        "<Ursprunglandnamn></Ursprunglandnamn>" \
-        "<Producent></Producent>" \
+        "<Ursprung>#{artikel.ursprungsstad}</Ursprung>" \
+        "<Ursprunglandnamn>#{artikel.ursprungsland}</Ursprunglandnamn>" \
+        "<Producent>#{artikel.producent}</Producent>" \
         "<Leverantor></Leverantor>" \
         "<Argang></Argang>" \
         "<Provadargang/>" \
         "<Alkoholhalt>#{artikel.alkoholhalt}</Alkoholhalt>" \
         "<Sortiment>#{artikel.sortiment}</Sortiment>" \
-        "<Ekologisk></Ekologisk>" \
+        "<Ekologisk>#{artikel.ekologiskt}</Ekologisk>" \
         "<Koscher></Koscher>" \
+        "<RavarorBeskrivning>#{artikel.råvarorBeskrivning}</RavarorBeskrivning>" \
       "</artikel>"
   end
 end

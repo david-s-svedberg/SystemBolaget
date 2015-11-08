@@ -1,6 +1,5 @@
 require_relative 'artikel_test_helper'
 
-require 'nokogiri'
 require 'test/unit'
 require 'mocha/test_unit'
 
@@ -12,10 +11,11 @@ class GoldenPath < Test::Unit::TestCase
   end
 
   def test_golden_path()
-    sätt_upp_artiklar(skapa_artikel())
+    default_artikel = skapa_artikel()
+    sätt_upp_artiklar(default_artikel)
     filtrera_inte()
     lägg_till_alla_presenterade_artiklar()
-    verifiera_antal_artiklar(1)
+    verifiera_valda_artiklar(default_artikel)
     dölj_utskrifter()
     @sut.run()
   end

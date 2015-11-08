@@ -13,8 +13,8 @@ class ArtikelFactory
   private
 
     def skapa_artikel(node)
-      nr = node.get_childnode_text('nr')
-      artikelId = node.get_childnode_text('Artikelid')
+      nr = node.get_childnode_text('nr').to_i
+      artikelId = node.get_childnode_text('Artikelid').to_i
       namn = node.get_childnode_text('Namn')
       namn2 = node.get_childnode_text('Namn2')
       pris = node.get_childnode_text('Prisinklmoms').to_f
