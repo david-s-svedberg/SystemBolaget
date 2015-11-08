@@ -20,80 +20,179 @@ require_relative 'xpath_query_generator'
 class ObjectGraphFactory
 
   def initialize()
+    @app = nil
     @användarInformerare = nil
+    @artikelHämtare = nil
+    @xmlHämtare = nil
+    @xpathQueryGenerator = nil
     @valGivare = nil
+    @datumGivare = nil
     @artikelNrGivare = nil
-    @filNamnHållare = nil
+    @artikelFactory = nil
+    @artikelPresenterare = nil
+    @artikelFiltrerare = nil
+    @hemsidoKontrollerare = nil
     @användarFrågare = nil
     @websiteURLGenerator = nil
     @artikelNrSparare = nil
+    @artikelHemsidoVisare = nil
+    @valdaArtikelHållare = nil
   end
 
-  def create_app()
-    return SystemSökApp.new( \
-            get_användar_informerare(), \
-            ArtikelHämtare.new( \
-              XMLHämtare.new("http://www.systembolaget.se/api/assortment/products/xml"), \
-              XpathQueryGenerator.new( \
-                get_val_givare(), \
-                DatumGivare.new(), \
-                get_artikel_nr_givare() \
-              ), \
-              ArtikelFactory.new()
-            ), \
-            ArtikelPresenterare.new( \
-              get_användar_informerare(), \
-              ArtikelFiltrerare.new( \
-                get_val_givare(), \
-                HemsidoKontrollerare.new( \
-                  get_val_givare(), \
-                  get_website_url_generator(), \
-                  get_användar_informerare(), \
-                  get_användar_frågare(), \
-                  get_artikel_nr_sparare(), \
-                  get_artikel_nr_givare() \
-                ) \
-              ), \
-              get_användar_frågare(), \
-              ArtikelHemsidoVisare.new( \
-                get_website_url_generator() \
-              ), \
-              get_artikel_nr_sparare(), \
-              ValdaArtiklarHållare.new()
-            ) \
-          )
+  def get_app()
+    @app = create_app() unless @app != nil
+    return @app
+  end
+
+  def get_artikel_presenterare()
+    @artikelPresenterare = create_artikel_presenterare() unless @artikelPresenterare != nil
+    return @artikelPresenterare
+  end
+
+  def get_xpath_query_generator()
+    @xpathQueryGenerator = create_xpath_query_generator() unless @xpathQueryGenerator != nil
+    return @xpathQueryGenerator
+  end
+
+  def get_valda_artiklar_hållare()
+    @valdaArtikelHållare = create_valda_artiklar_hållare() unless @valdaArtikelHållare != nil
+    return @valdaArtikelHållare
+  end
+
+  def get_datum_givare()
+    @datumGivare = DatumGivare.new() unless @datumGivare != nil
+    return @datumGivare
+  end
+
+  def get_artikel_factory()
+    @artikelFactory = ArtikelFactory.new() unless @artikelFactory != nil
+    return @artikelFactory
+  end
+
+  def get_användar_informerare()
+    @användarInformerare = AnvändarInformerare.new() unless @användarInformerare != nil
+    return @användarInformerare
+  end
+
+  def get_val_givare()
+    @valGivare = ValGivare.new() unless @valGivare != nil
+    return @valGivare
+  end
+
+  def get_artikel_nr_givare()
+    @artikelNrGivare = ArtikelNrGivare.new() unless @artikelNrGivare != nil
+    return @artikelNrGivare
+  end
+
+  def get_användar_frågare()
+    @användarFrågare = AnvändarFrågare.new() unless @användarFrågare != nil
+    return @användarFrågare
+  end
+
+  def get_website_url_generator()
+    @websiteURLGenerator = WebsiteURLGenerator.new() unless @websiteURLGenerator != nil
+    return @websiteURLGenerator
+  end
+
+  def get_artikel_nr_sparare()
+    @artikelNrSparare = ArtikelNrSparare.new() unless @artikelNrSparare != nil
+    return @artikelNrSparare
+  end
+
+  def get_artikel_hemsido_visare()
+    @artikelHemsidoVisare = create_artikel_hemsido_visare() unless @artikelHemsidoVisare != nil
+    return @artikelHemsidoVisare
+  end
+
+
+  def get_artikel_filtrerare()
+    @artikelFiltrerare = create_artikel_filtrerare() unless @artikelFiltrerare != nil
+    return @artikelFiltrerare
+  end
+
+  def get_hemsido_kontrollerare()
+    @hemsidoKontrollerare = create_hemsido_kontrollerare() unless @hemsidoKontrollerare != nil
+    return @hemsidoKontrollerare
+  end
+
+  def get_artikel_hämtare()
+    @artikelHämtare = create_artikel_hämtare() unless @artikelHämtare != nil
+    return @artikelHämtare
+  end
+
+  def get_xml_hämtare()
+    @xmlHämtare = create_xml_hämtare() unless @xmlHämtare != nil
+    return @xmlHämtare
   end
 
   private
 
-    def get_användar_informerare()
-      @användarInformerare = AnvändarInformerare.new() unless @användarInformerare != nil
-      return @användarInformerare
+    def create_app()
+      return SystemSökApp.new( \
+        get_användar_informerare(), \
+        get_artikel_hämtare(), \
+        get_artikel_presenterare() \
+      )
     end
 
-    def get_val_givare()
-      @valGivare = ValGivare.new() unless @valGivare != nil
-      return @valGivare
+    def create_artikel_presenterare()
+      return ArtikelPresenterare.new( \
+        get_användar_informerare(), \
+        get_artikel_filtrerare(), \
+        get_användar_frågare(), \
+        get_artikel_hemsido_visare(), \
+        get_artikel_nr_sparare(), \
+        get_valda_artiklar_hållare()
+      )
     end
 
-    def get_artikel_nr_givare()
-      @artikelNrGivare = ArtikelNrGivare.new() unless @artikelNrGivare != nil
-      return @artikelNrGivare
+    def create_valda_artiklar_hållare()
+      return ValdaArtiklarHållare.new()
     end
 
-    def get_användar_frågare()
-      @användarFrågare = AnvändarFrågare.new() unless @användarFrågare != nil
-      return @användarFrågare
+
+    def create_artikel_hemsido_visare()
+      return ArtikelHemsidoVisare.new( \
+          get_website_url_generator() \
+        )
     end
 
-    def get_website_url_generator()
-      @websiteURLGenerator = WebsiteURLGenerator.new() unless @websiteURLGenerator != nil
-      return @websiteURLGenerator
+    def create_artikel_filtrerare()
+      return ArtikelFiltrerare.new( \
+        get_val_givare(), \
+        get_hemsido_kontrollerare() \
+      )
     end
 
-    def get_artikel_nr_sparare()
-      @artikelNrSparare = ArtikelNrSparare.new() unless @artikelNrSparare != nil
-      return @artikelNrSparare
+    def create_hemsido_kontrollerare()
+      return HemsidoKontrollerare.new( \
+          get_val_givare(), \
+          get_website_url_generator(), \
+          get_användar_informerare(), \
+          get_användar_frågare(), \
+          get_artikel_nr_sparare(), \
+          get_artikel_nr_givare() \
+        )
+    end
+
+    def create_artikel_hämtare()
+      return ArtikelHämtare.new( \
+        get_xml_hämtare(), \
+        get_xpath_query_generator(), \
+        get_artikel_factory() \
+      )
+    end
+
+    def create_xml_hämtare()
+      return XMLHämtare.new("http://www.systembolaget.se/api/assortment/products/xml")
+    end
+
+    def create_xpath_query_generator()
+      return XpathQueryGenerator.new( \
+          get_val_givare(), \
+          get_datum_givare(), \
+          get_artikel_nr_givare() \
+        )
     end
 
 end
