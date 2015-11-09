@@ -105,24 +105,26 @@ class HemsidoKontrollerare
     end
 
     def passerar_alla_valda_kontroller?(artikel, webContent)
-      ret = true
+      passerarKontrollerna = true
 
       if(kontrollera_kollikrav?(artikel))
         if(!passerar_kollikrav_kontroll?(artikel, webContent))
-          ret = false
+          passerarKontrollerna = false
         end
       end
       if(kontrollera_beställningsbarhet?(artikel))
         if(!passerar_beställningsbarhets_kontroll?(artikel, webContent))
-          ret = false
+          passerarKontrollerna = false
         end
       end
-      if(kontrollera_tillfälligt_slut?())
-        if(!passerar_tillfälligt_slut_kontroll?(webContent))
-          ret = false
+      if(passerarKontrollerna)
+        if(kontrollera_tillfälligt_slut?())
+          if(!passerar_tillfälligt_slut_kontroll?(webContent))
+            passerarKontrollerna = false
+          end
         end
       end
-      return ret
+      return passerarKontrollerna
     end
 
     def hantera_användarens_val(artikel, val)

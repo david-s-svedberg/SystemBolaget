@@ -1,11 +1,11 @@
-require_relative '../src/artikel'
-require_relative '../src/artikel_hämtare'
-require_relative '../src/object_graph_factory'
-require_relative '../src/användar_frågare'
-require_relative '../src/användar_informerare'
-require_relative '../src/valda_artiklar_hållare'
-require_relative '../src/hemsido_hämtare'
-require_relative '../lib/core_ext/string'
+require_relative '../../src/artikel'
+require_relative '../../src/artikel_hämtare'
+require_relative '../../src/object_graph_factory'
+require_relative '../../src/användar_frågare'
+require_relative '../../src/användar_informerare'
+require_relative '../../src/valda_artiklar_hållare'
+require_relative '../../src/hemsido_hämtare'
+require_relative '../../lib/core_ext/string'
 
 module ArtikelTestHelper
 
@@ -105,6 +105,15 @@ module ArtikelTestHelper
     HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarSomEjÄrBeställningsbara))).returns("asdasda")
   end
 
+  def filtrera_ej_beställningsbara_och_tillfälligt_slut(*artiklarSomEjÄrBeställningsbara)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(false)
+    ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarSomEjÄrBeställningsbara)).returns("asdasd Går inte att beställa till övriga butiker adasd")
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarSomEjÄrBeställningsbara))).returns("asdasda")
+  end
+
   def filtrera_cache_beställningsbar(*artiklarSomEjÄrBeställningsbara)
     filtrera_inte()
     ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(false)
@@ -137,6 +146,36 @@ module ArtikelTestHelper
 
   def verifiera_valda_artiklar(*artiklar)
     ValdaArtiklarHållare.any_instance.expects(:lägg_till).times(artiklar.length).with(any_of(*artiklar))
+  end
+
+  def verifiera_att_tillfälligt_slut_inte_kontrolleras()
+    HemsidoKontrollerare.any_instance.expects(:passerar_tillfälligt_slut_kontroll?).never()
+  end
+
+  def kontrollerar_endast_kollikrav_en_gång(artikel)
+    tidigareKollikrav = []
+
+    ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.expects(:hämta_hemsida).with(artikel).returns("asdasd Kollikrav adasd").once()
+    ArtikelNrSparare.any_instance.expects(:spara_har_kollikrav).once().with(){ |artikel|
+      tidigareKollikrav << artikel.nr
+      true
+    }
+    ArtikelNrGivare.any_instance.stubs(:artikel_nr_som_visats_ha_kollikrav).returns(tidigareKollikrav)
+  end
+
+  def kontrollerar_endast_beställningsbar_en_gång(artikel)
+    tidigareIckeBeställningsbar = []
+
+    ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.expects(:hämta_hemsida).with(artikel).returns("asdasd Går inte att beställa till övriga butiker adasd").once()
+    ArtikelNrSparare.any_instance.expects(:spara_inte_beställningsbar).once().with(){ |artikel|
+      tidigareIckeBeställningsbar << artikel.nr
+      true
+    }
+    ArtikelNrGivare.any_instance.stubs(:artikel_nr_som_visats_vara_icke_beställningsbara).returns(tidigareIckeBeställningsbar)
   end
 
   def get_artikel_xml(artikel)

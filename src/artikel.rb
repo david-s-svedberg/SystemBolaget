@@ -24,17 +24,20 @@ class Artikel
   end
 
   def ==(other)
-    # ret = true
-    # i = 0
-    # self.state.each do |value|
-    #   if(value != other.state[i])
-    #     puts("#{value} (class:#{value.class}) != #{other.state[i]} (class:#{other.state[i].class})")
-    #     ret = false
-    #   end
-    #   i += 1
-    # end
-    # return ret
     return self.class == other.class && self.state == other.state
+  end
+
+  def verbose_equals(other)
+    ret = true
+    i = 0
+    self.state.each do |value|
+      if(value != other.state[i])
+        puts("#{value} (class:#{value.class}) != #{other.state[i]} (class:#{other.state[i].class})")
+        ret = false
+      end
+      i += 1
+    end
+    return ret
   end
 
   def to_s

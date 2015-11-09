@@ -1,4 +1,4 @@
-require_relative 'artikel_test_helper'
+require_relative 'helpers/artikel_test_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'

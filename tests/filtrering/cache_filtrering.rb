@@ -1,4 +1,4 @@
-require_relative 'artikel_test_helper'
+require_relative '../helpers/artikel_test_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
@@ -35,6 +35,21 @@ class CacheFiltrering < Test::Unit::TestCase
     verifiera_valda_artiklar(beställningsbar, beställningsbar2)
     dölj_utskrifter()
     spara_inte_artikel_nr()
+    @sut.run()
+  end
+
+
+  def test_skippar_tester_för_sen_tidigare_falerade_artiklar()
+    inteBeställningsbar = skapa_artikel(nr: 2, sortiment: 'TSLS')
+    kollikrav = skapa_artikel(nr: 4, sortiment: 'BS')
+    sätt_upp_artiklar(inteBeställningsbar, inteBeställningsbar, kollikrav, kollikrav)
+    filtrera_inte()
+    kontrollerar_endast_kollikrav_en_gång(kollikrav)
+    kontrollerar_endast_beställningsbar_en_gång(inteBeställningsbar)
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar()
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
     @sut.run()
   end
 

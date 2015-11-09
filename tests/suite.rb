@@ -1,5 +1,5 @@
 require 'test/unit'
 require_relative 'golden_path'
-require_relative 'xml_filtrering'
-require_relative 'web_filtrering'
-require_relative 'cache_filtrering'
+require_relative 'filtrering/xml_filtrering'
+require_relative 'filtrering/web_filtrering'
+require_relative 'filtrering/cache_filtrering'

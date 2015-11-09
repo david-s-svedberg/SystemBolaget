@@ -1,120 +1,14 @@
-http://www.systembolaget.se/api/assortment/products/xml
-http://www.systembolaget.se/api/assortment/stores/xml
-http://www.systembolaget.se/api/assortment/stock/xml
+<h1> Beställnings filtrering för systembolaget </h1>
 
-Starta
-Hämtar senaste (behövda) filerna
+Skrev denna kod för att kunna filtrera fram artiklar ur systembolagets
+sortiment som går att beställa till närmsta systembolag eller ombud.
 
+Filtrering kan göras på:
+* Varugrupper
+* Sortiment
+* Säljstart (hurvida artiklar med framtida säljstart ska visas)
+* Kollikrav (hurvida artiklar med kollikrav ska visas)
+* Beställbarhet (vissa artiklar kan bara beställas till närmsta ombud)
+* Tillfälligt slut (hurvida artiklar som är tillfälligt slut ska visas)
 
-Bäställa till närmaste Systembolag UC
-(Hitta närmsta systembolag)
-Filtrera produkter så att endast drycker som kan beställas visas
-  * Säljstart < dagens datum
-  * Antal som måste beställas < angivet värde
-  * Plocka bort drycker som bara får säljas innom ett visst område ELLER
-  (* Beräkna hur långt bort närmaste systembolag är från varje produkt och visa om de är inom rätt intervall (alltid 15 mil?)
-Filtrera på Dryck och dryckestyp enligt angivet filter
-Visa, en åt gången, så många drycker som angivits
-Ge användaren möjlighet att skippa, utesluta, lägg till
-När alla drycker visats (Vid skipp eller uteslut, lägg till nya drycker att visa) Visa alla drycker som lagts till, fråga användare om fler drycker ska visas eller om artikelsida för alla valda produkter ska visas
-
-
-
-
-Startparametrer:
-Setup = "Låter användren ange startparametrar innifrån programmet"
-LOC = "Försök hitta användarens position, för att hitta närmsta systembolag"
-frågaLOC = "Frågar vid varje lokalproducerad produkt om användaren befinner sig inom 15 mil från produktens produktionsställe"
-Antal = "Så många drycker som ska hittas"
-
-
-Sortiment TSLS inebär att produkten bara kan beställas 15 mil från produktionsstället
-
-wget -q -O- http://www.systembolaget.se/dryck/vita-viner/motzenbacker-marie-7599701 |
-grep -c kontakt
-
-TODO:
-* Formaterad visning av artiklar
-* Börja strukturera om koden i klasser för att inte bli galen
-* Spara undan valda, skippade och uteslutna artiklar
-* Skrapa artikel sida (/namn(bindesträck=mellanslag, åäö=aao)-nr) för att kolla artikelbegränsning
-
-
-Refactoring:
-Main
-  ArgumentParser.parse(String[])
-  ObjectGraphFactory.createApp() : SystemSökApp
-  SystemSökApp.run()
-
-  ObjectGraphFactory
-
-  SystemSökApp
-    AnvändareInformerare.hämtarArtiklar()
-    ArtikelHämtare.hämtaArtiklar() : Artikel []
-    AnvändareInformerare.artiklarHämtade()
-    ArtikelPresenterare.visaArtiklarFörAnvändaren(Artikel [])
-
-    AnvändareInformerare
-
-    ArtikelHämtare
-      XMLHämtare.hämta() : String
-      XpathQueryGenerator.genereraQuery() : String
-      utförQuery(String, String) : NodeSet
-      ArtikelFactory.skapaArtiklarFrånNoder(NodeSet) : Artikel []
-
-      XMLHämtare
-
-      XpathQueryGenerator
-
-        ValGivare.valdaVarugrupper() : String []
-        ValGivare.visaArtiklarMedFramtidaSäljstart? : Boolean
-        DatumGivare.dagensDatum() : Date
-        ValGivare.begränsaSortimen()? : Boolean
-        ValGivare.oönskadeSortiment() : String []
-        ValGivare.uteslutTidigareTillagdaArtiklar? : Boolean
-        ArtikelNrGivare.tidigareTillagdaArtikelNr() : String []
-        ArtikelNrGivare.uteslutnaArtikelNr() : String []
-
-        ValGivare
-        DatumGivare
-        ArtikelNrGivare
-
-      ArtikelFactory
-
-    ArtikelPresenterare
-      AnvändareInformerare.filtrerar()
-      ArtikelFiltrerare.skaVisas?(Artikel) : Boolean
-      visaArtikelInformation(Artikel)
-      AnvändareFrågare.begärValFörVisadArtikel() : String
-      ArtikelHemsidoVisare.visaHemsida(Artikel)
-      ArtikelNrSparare.sparaUteslutenArtikel(Artikel)
-      ArtikelNrSparare.sparaTillagdArtikel(Artikel)
-
-      ArtikelFiltrerare
-        ValGivare.visaArtiklarMedKollikrav? : Boolean
-        ArtikelNrGivare.artikelNrUtanKollikravVidTidigareKörning() : String []
-        ValGivare.visaArtiklarSomEjGårAttBeställa? : Boolean
-        ArtikelNrGivare.artikelNrSomGårAttBeställaVidTidigareKörning() : String []
-        ValGivare.visaArtiklarSomÄrTillfälligtSlut? : Boolean
-        HemsidoKontrollerare.uppfyllerKraven?(Artikel, :utan_kollikrav, :går_att_beställa, :ej_slut)
-
-        ValGivare
-        ArtikelNrSparare
-        ArtikelNrGivare
-        HemsidoKontrollerare
-          WebsiteURLGenerator.genereraArtikelURL(Artikel) : String
-          AnvändareInformerare.hemsidaFinnsInte(String)
-          AnvändareFrågare.visaValFörSaknadHemsida()
-          ArtikelNrSparare.sparaUteslutenArtikel(Artikel)
-          ArtikelNrSparare.sparaArtikelUtanKolliKrav(Artikel)
-          ArtikelNrSparare.sparaArtikelSomGårAttBeställa(Artikel)
-
-          WebsiteURLGenerator
-          AnvändareFrågare
-          AnvändareInformerare
-          ArtikelNrSparare
-
-      AnvändareFrågare
-      ArtikelHemsidoVisare
-        WebsiteURLGenerator
-      ArtikelNrSparare
+Går även att välja om tidigare uteslutna eller tillagda artiklar ska visas
