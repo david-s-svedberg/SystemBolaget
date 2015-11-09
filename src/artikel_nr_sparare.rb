@@ -38,7 +38,7 @@ class ArtikelNrSparare
   def spara_artikel_nr_om_det_inte_redan_är_sparat(artikel, filnamn)
     make_sure_bin_dir_exists()
     File.open(filnamn, "a+") do |file|
-      file.puts(artikel.nr) unless file.read.include?(artikel.nr)
+      file.puts(artikel.nr) unless file.read.include?(artikel.nr.to_s)
     end
   end
 
