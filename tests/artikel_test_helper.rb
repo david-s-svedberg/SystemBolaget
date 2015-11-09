@@ -89,6 +89,38 @@ module ArtikelTestHelper
     HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarMedKollikrav))).returns("asdasda")
   end
 
+  def filtrera_cache_kollikrav(*artiklarMedKollikrav)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(false)
+    ArtikelNrGivare.any_instance.stubs(:artikel_nr_som_visats_ha_kollikrav).returns(artiklarMedKollikrav.map {|artikel| artikel.nr})
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).returns("")
+  end
+
+  def filtrera_ej_beställningsbara(*artiklarSomEjÄrBeställningsbara)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarSomEjÄrBeställningsbara)).returns("asdasd Går inte att beställa till övriga butiker adasd")
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarSomEjÄrBeställningsbara))).returns("asdasda")
+  end
+
+  def filtrera_cache_beställningsbar(*artiklarSomEjÄrBeställningsbara)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(false)
+    ArtikelNrGivare.any_instance.stubs(:artikel_nr_som_visats_vara_icke_beställningsbara).returns(artiklarSomEjÄrBeställningsbara.map {|artikel| artikel.nr})
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).returns("")
+  end
+
+  def filtrera_tillfälligt_slut(*artiklarSomÄrTillfälligtSlut)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarSomÄrTillfälligtSlut)).returns("asdasd Tillfälligt slut adasd")
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarSomÄrTillfälligtSlut))).returns("asdasda")
+  end
+
   def sätt_upp_artiklar(*artiklar)
     artikelArray = []
     artiklar.each do |artikel|

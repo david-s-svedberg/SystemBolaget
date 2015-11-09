@@ -8,7 +8,7 @@ class HemsidoHämtare
   end
 
   def hemsida_finns?(artikel)
-    url = URI.parse(@websiteURLGenerator.generera_artikelhemsida(artikel))
+    url = URI.parse(@websiteURLGenerator.generera(artikel))
     req = Net::HTTP.new(url.host, url.port)
     res = req.request_head(url.path)
     return res.code == "200"
@@ -16,14 +16,14 @@ class HemsidoHämtare
 
   def hämta_hemsida(artikel)
     content = nil
-    open(@websiteURLGenerator.generera_artikelhemsida(artikel)) do |io|
+    open(@websiteURLGenerator.generera(artikel)) do |io|
       content = io.read
     end
     return content
   end
 
   def artikelsHemsidaUrl(artikel)
-    return @websiteURLGenerator.generera_artikelhemsida(artikel)
+    return @websiteURLGenerator.generera(artikel)
   end
 
 end

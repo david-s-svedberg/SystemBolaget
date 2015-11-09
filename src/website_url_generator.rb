@@ -46,7 +46,8 @@ class WebsiteURLGenerator
       ersättningar.each do |key, value|
         ersattText.gsub!(key, value)
       end
-      return ersattText.downcase!
+      ersattText.downcase!
+      return ersattText
     end
 
 end
