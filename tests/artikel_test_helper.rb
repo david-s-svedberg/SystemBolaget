@@ -4,6 +4,7 @@ require_relative '../src/object_graph_factory'
 require_relative '../src/användar_frågare'
 require_relative '../src/användar_informerare'
 require_relative '../src/valda_artiklar_hållare'
+require_relative '../src/hemsido_hämtare'
 require_relative '../lib/core_ext/string'
 
 module ArtikelTestHelper
@@ -14,6 +15,19 @@ module ArtikelTestHelper
 
   def skapa_artikel(nr: 1000, artikelId: 1000, namn: 'Artikel namn', namn2: 'Artikel namn 2', pris: 123.45, volym: 330, prisPerLiter: 997.8, säljstart: DateTime.new(2000,1,1), varugrupp: 'Öl', förpackning: 'flaska', ursprungsstad: 'Malmö', ursprungsland: 'Sverige', producent: 'Röstånga Raj Raj', alkoholhalt: '5.00%', sortiment: 'FS', ekologiskt: false, råvarorBeskrivning: 'Råvarubeskrivning')
     return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart.to_date.to_datetime, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
+  end
+
+  def spara_inte_för_tidigare_tilläggningar()
+    ArtikelNrSparare.any_instance.stubs(:spara_tillagd_artikel).returns("")
+  end
+
+  def spara_inte_artikel_nr()
+    ArtikelNrSparare.any_instance.stubs(:spara_tillagd_artikel).returns("")
+    ArtikelNrSparare.any_instance.stubs(:spara_utesluten_artikel).returns("")
+    ArtikelNrSparare.any_instance.stubs(:spara_har_kollikrav).returns("")
+    ArtikelNrSparare.any_instance.stubs(:spara_saknar_kollikrav).returns("")
+    ArtikelNrSparare.any_instance.stubs(:spara_beställningsbar).returns("")
+    ArtikelNrSparare.any_instance.stubs(:spara_inte_beställningsbar).returns("")
   end
 
   def dölj_utskrifter()
@@ -32,6 +46,7 @@ module ArtikelTestHelper
     ValGivare.any_instance.stubs(:begränsa_sortimen?).returns(false)
     ValGivare.any_instance.stubs(:visa_artiklar_med_framtida_säljstart?).returns(true)
     ValGivare.any_instance.stubs(:visa_tidigare_tillagda_artiklar?).returns(true)
+    ValGivare.any_instance.stubs(:visa_uteslutna_artiklar?).returns(true)
     ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(true)
     ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(true)
     ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(true)
@@ -52,6 +67,26 @@ module ArtikelTestHelper
   def filtrera_säljstart()
     filtrera_inte()
     ValGivare.any_instance.stubs(:visa_artiklar_med_framtida_säljstart?).returns(false)
+  end
+
+  def filtrera_uteslutna(*uteslutnaArtikelNr)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_uteslutna_artiklar?).returns(false)
+    ArtikelNrGivare.any_instance.stubs(:uteslutna_artikel_nr).returns(uteslutnaArtikelNr)
+  end
+
+  def filtrera_tidigare_tillagda(*tidigareTillagdaArtikelNr)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_tidigare_tillagda_artiklar?).returns(false)
+    ArtikelNrGivare.any_instance.stubs(:tidigare_tillagda_artikel_nr).returns(tidigareTillagdaArtikelNr)
+  end
+
+  def filtrera_kollikrav(*artiklarMedKollikrav)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(false)
+    HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarMedKollikrav)).returns("asdasd Kollikrav adasd")
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarMedKollikrav))).returns("asdasda")
   end
 
   def sätt_upp_artiklar(*artiklar)

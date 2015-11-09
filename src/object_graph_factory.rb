@@ -37,6 +37,7 @@ class ObjectGraphFactory
     @artikelNrSparare = nil
     @artikelHemsidoVisare = nil
     @valdaArtikelHållare = nil
+    @hemsidoHämtare = nil
   end
 
   def get_app()
@@ -125,6 +126,11 @@ class ObjectGraphFactory
     return @xmlHämtare
   end
 
+  def get_hemsido_hämtare()
+    @hemsidoHämtare = create_hemsido_hämtare() unless @hemsidoHämtare != nil
+    return @hemsidoHämtare
+  end
+
   private
 
     def create_app()
@@ -167,7 +173,7 @@ class ObjectGraphFactory
     def create_hemsido_kontrollerare()
       return HemsidoKontrollerare.new( \
           get_val_givare(), \
-          get_website_url_generator(), \
+          get_hemsido_hämtare(), \
           get_användar_informerare(), \
           get_användar_frågare(), \
           get_artikel_nr_sparare(), \
@@ -181,6 +187,10 @@ class ObjectGraphFactory
         get_xpath_query_generator(), \
         get_artikel_factory() \
       )
+    end
+
+    def create_hemsido_hämtare()
+      return HemsidoHämtare.new(get_website_url_generator())
     end
 
     def create_xml_hämtare()

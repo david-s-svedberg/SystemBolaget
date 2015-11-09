@@ -6,6 +6,7 @@ class ValGivare
 
     @visaFramtidaSäljstart = false
     @visaTidigareTillagda = false
+    @visaUteslutna = false
     @visaArtiklarMedKollikrav = false
     @visaArtiklarSomEjGårAttBeställa = false
     @visaArtiklarSomÄrTillfälligtSlut = false
@@ -17,6 +18,7 @@ class ValGivare
 
       opts.on('-ss', '--säljstart', 'Visa artiklar med framtida säljstart') { @visaFramtidaSäljstart = true }
       opts.on('-ut', '--utesluttillagda', 'Visa ej artiklar som lagts till tidigare') { @visaTidigareTillagda = true }
+      opts.on('-uu', '--uteslututeslutna', 'Visa ej artiklar som uteslutits') { @visaUteslutna = true }
       opts.on('-kk', '--kollikrav', 'Visa artiklar som har ett kollikrav ') { @visaArtiklarMedKollikrav = true }
       opts.on('-eb', '--ejbeställlbara', 'Visa artiklar som ej går att beställa då de bara får säljas till ett systembolag ') { @visaArtiklarSomEjGårAttBeställa = true }
       opts.on('-ts', '--tillfälligtslut', 'Visa artiklar som är tillfälligt slut') { @visaArtiklarSomÄrTillfälligtSlut = true }
@@ -49,6 +51,10 @@ class ValGivare
 
   def visa_tidigare_tillagda_artiklar?()
     return @visaTidigaTillagda
+  end
+
+  def visa_uteslutna_artiklar?()
+    return @visaUteslutna
   end
 
   def visa_artiklar_med_kollikrav?()

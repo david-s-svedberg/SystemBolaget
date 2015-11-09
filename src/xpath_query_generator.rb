@@ -14,8 +14,12 @@ class XpathQueryGenerator
     queryDelar << skapa_oönskade_sortiment_query().wrap_with_parenthesis() unless !@valGivare.begränsa_sortimen?()
     queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart?()
     queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?()
-    queryDelar << skapa_uteslutna_query().wrap_with_parenthesis()
-    return "//artikel[#{queryDelar.join(' and ')}]/."
+    queryDelar << skapa_uteslutna_query().wrap_with_parenthesis() unless @valGivare.visa_uteslutna_artiklar?()
+    if(queryDelar.empty?)
+      return "//artikel"
+    else
+      return "//artikel[#{queryDelar.join(' and ')}]/."
+    end
   end
 
   private
@@ -42,10 +46,10 @@ class XpathQueryGenerator
       return format_and_join(artiklar, "./nr = REPLACE_STRING", ' or ').wrap('not(', ')')
     end
 
-    def format_and_join(stringArray, formatString, joinString)
+    def format_and_join(artikelNummer, formatString, joinString)
       arr = []
-      stringArray.each do |str|
-        arr << formatString.sub(REPLACE_STRING, str)
+      artikelNummer.each do |nummer|
+        arr << formatString.sub(REPLACE_STRING, nummer.to_s)
       end
       return arr.join(joinString)
     end

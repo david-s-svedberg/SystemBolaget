@@ -17,6 +17,7 @@ class GoldenPath < Test::Unit::TestCase
     lägg_till_alla_presenterade_artiklar()
     verifiera_valda_artiklar(default_artikel)
     dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
     @sut.run()
   end
 

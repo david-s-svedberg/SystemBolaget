@@ -20,6 +20,7 @@ class XmlFiltrering < Test::Unit::TestCase
     lägg_till_alla_presenterade_artiklar()
     verifiera_valda_artiklar(öl, öl2)
     dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
     @sut.run()
   end
 
@@ -33,6 +34,7 @@ class XmlFiltrering < Test::Unit::TestCase
     lägg_till_alla_presenterade_artiklar()
     verifiera_valda_artiklar(annan, annan2)
     dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
     @sut.run()
   end
 
@@ -46,6 +48,35 @@ class XmlFiltrering < Test::Unit::TestCase
     lägg_till_alla_presenterade_artiklar()
     verifiera_valda_artiklar(gammal, sammaDag)
     dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
+    @sut.run()
+  end
+
+  def test_filtrerar_uteslutna()
+    utesluten = skapa_artikel(nr: 1)
+    utesluten2 = skapa_artikel(nr: 2)
+    inteUtesluten = skapa_artikel(nr: 3)
+    inteUtesluten2 = skapa_artikel(nr: 4)
+    sätt_upp_artiklar(utesluten, utesluten2, inteUtesluten, inteUtesluten2)
+    filtrera_uteslutna(1,2)
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar(inteUtesluten, inteUtesluten2)
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
+    @sut.run()
+  end
+
+  def test_filtrerar_tidigare_tillagda()
+    tillagd = skapa_artikel(nr: 1)
+    tillagd2 = skapa_artikel(nr: 2)
+    inteTillagd = skapa_artikel(nr: 3)
+    inteTillagd2 = skapa_artikel(nr: 4)
+    sätt_upp_artiklar(tillagd, tillagd2, inteTillagd, inteTillagd2)
+    filtrera_tidigare_tillagda(1,2)
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar(inteTillagd, inteTillagd2)
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
     @sut.run()
   end
 

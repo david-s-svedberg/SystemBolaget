@@ -29,13 +29,13 @@ class ArtikelNrGivare
   private
 
     def läs_in_artikel_nr_från_fil(filnamn)
-      artiklar = ['-1']
+      artikelnr = [-1]
       if(File.exist?(filnamn))
-        file = File.open(filnamn, "r")
-        artiklar.concat(file.each_line.to_a)
-        file.close
+        File.open(filnamn, "r").each_line do |line|
+          artikelnr << line.to_i
+        end
       end
-      return artiklar
+      return artikelnr
     end
 
 end

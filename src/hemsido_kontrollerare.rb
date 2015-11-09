@@ -1,12 +1,8 @@
-require 'io/console'
-require 'open-uri'
-require "net/http"
-
 class HemsidoKontrollerare
 
-  def initialize(valGivare, websiteURLGenerator, användarInformerare, användarFrågare, artikelNrSparare, artikelNrGivare)
+  def initialize(valGivare, hemsidoHämtare, användarInformerare, användarFrågare, artikelNrSparare, artikelNrGivare)
     @valGivare = valGivare
-    @websiteURLGenerator = websiteURLGenerator
+    @hemsidoHämtare = hemsidoHämtare
     @användarInformerare = användarInformerare
     @användarFrågare = användarFrågare
     @artikelNrSparare = artikelNrSparare
@@ -17,12 +13,11 @@ class HemsidoKontrollerare
     return false if kontroll_ska_göras_på_något_som_sen_tidigare_visats_falera(artikel)
 
     ret = true
-    url = @websiteURLGenerator.generera(artikel)
-    if(hemsida_finns?(url))
-      webContent = hämta_hemsida(url)
+    if(@hemsidoHämtare.hemsida_finns?(artikel))
+      webContent = @hemsidoHämtare.hämta_hemsida(artikel)
       ret = passerar_alla_valda_kontroller?(artikel, webContent)
     else
-      @användarInformerare.hemsida_finns_inte(url)
+      @användarInformerare.hemsida_finns_inte(@hemsidoHämtare.artikelsHemsidaUrl(artikel))
       @användarInformerare.val_för_felaktig_hemsida()
       val = @användarFrågare.begär_val_för_felaktig_hemsida()
       hantera_användarens_val(artikel, val)
@@ -36,24 +31,9 @@ class HemsidoKontrollerare
 
   private
 
-    def hemsida_finns?(url)
-      url = URI.parse(url)
-      req = Net::HTTP.new(url.host, url.port)
-      res = req.request_head(url.path)
-      return res.code == "200"
-    end
-
     def kontroll_ska_göras_på_något_som_sen_tidigare_visats_falera(artikel)
       return (kontrollera_kollikrav?(artikel) && har_sen_tidigare_visats_ha_kollikrav?(artikel)) || \
              (kontrollera_beställningsbarhet?(artikel) && har_sen_tidigare_visats_vara_icke_beställningsbar?(artikel))
-    end
-
-    def hämta_hemsida(url)
-      content = nil
-      open(url) do |io|
-        content = io.read
-      end
-      return content
     end
 
     def kontrollera_tillfälligt_slut?()
@@ -126,6 +106,7 @@ class HemsidoKontrollerare
 
     def passerar_alla_valda_kontroller?(artikel, webContent)
       ret = true
+
       if(kontrollera_kollikrav?(artikel))
         if(!passerar_kollikrav_kontroll?(artikel, webContent))
           ret = false
