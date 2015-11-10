@@ -1,14 +1,17 @@
-<h1> Beställnings filtrering för systembolaget </h1>
+<body>
+  <h1> Beställnings filtrering för systembolaget </h1>
 
-Skrev denna kod för att kunna filtrera fram artiklar ur systembolagets
-sortiment som går att beställa till närmsta systembolag eller ombud.
+  Skrev denna kod för att kunna filtrera fram artiklar ur systembolagets
+  sortiment som går att beställa till närmsta systembolag eller ombud.
 
-Filtrering kan göras på:
-* Varugrupper
-* Sortiment
-* Säljstart (hurvida artiklar med framtida säljstart ska visas)
-* Kollikrav (hurvida artiklar med kollikrav ska visas)
-* Beställbarhet (vissa artiklar kan bara beställas till närmsta ombud)
-* Tillfälligt slut (hurvida artiklar som är tillfälligt slut ska visas)
+  Filtrering kan göras på:
+  * Varugrupper
+  * Sortiment
+  * Säljstart (hurvida artiklar med framtida säljstart ska visas)
+  * Kollikrav (hurvida artiklar med kollikrav ska visas)
+  * Beställbarhet (vissa artiklar kan bara beställas till närmsta ombud)
+  * Tillfälligt slut (hurvida artiklar som är tillfälligt slut ska visas)
 
-Går även att välja om tidigare uteslutna eller tillagda artiklar ska visas
+  Går även att välja om tidigare uteslutna eller tillagda artiklar ska visas
+
+</body>

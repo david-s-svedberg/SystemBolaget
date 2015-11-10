@@ -126,7 +126,7 @@ module ArtikelTestHelper
     filtrera_inte()
     ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(false)
     HemsidoHämtare.any_instance.stubs(:hemsida_finns?).returns(true)
-    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarSomÄrTillfälligtSlut)).returns("asdasd Tillfälligt slut adasd")
+    HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(any_of(*artiklarSomÄrTillfälligtSlut)).returns("asdasd Tillf&#228;lligt slut hos leverant&#246;r adasd")
     HemsidoHämtare.any_instance.stubs(:hämta_hemsida).with(Not(any_of(*artiklarSomÄrTillfälligtSlut))).returns("asdasda")
   end
 

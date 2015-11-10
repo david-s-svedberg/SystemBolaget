@@ -97,7 +97,7 @@ class HemsidoKontrollerare
     end
 
     def passerar_tillfälligt_slut_kontroll?(webContent)
-      if(webContent.include?("Tillfälligt slut"))
+      if(webContent.include?("Tillf&#228;lligt slut hos leverant&#246;r"))
         return false
       else
         return true
