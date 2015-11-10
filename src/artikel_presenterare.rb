@@ -1,3 +1,5 @@
+require 'highline'
+
 class ArtikelPresenterare
 
   def initialize(användarInformerare, artikelFiltrerare, användarFrågare, artikelHemsidoVisare, artikelNrSparare, valdaArtiklarHållare)
@@ -25,17 +27,35 @@ class ArtikelPresenterare
 
   private
     def visa_artikel(artikel)
-      puts(artikel.namn)
-      puts(artikel.namn2)
+      puts("Namn:           #{artikel.namn} #{artikel.namn2}")
       puts()
-      puts(artikel.varugrupp)
-      puts(artikel.råvarorBeskrivning)
-      puts("#{artikel.pris}kr")
-      puts(artikel.alkoholhalt)
-      puts("#{artikel.volym}ml")
-      puts("#{artikel.prisPerLiter}kr per liter")
+      puts("Varugrupp:      #{artikel.varugrupp}")
+      visa_beskrivning(artikel)
+      puts()
+      puts("Producent:      #{artikel.producent}")
+      puts("Pris:           #{artikel.pris}kr")
+      puts("Alkoholhalt:    #{artikel.alkoholhalt}")
+      puts("Volym:          #{artikel.volym}ml")
+      puts("Pris per liter: #{artikel.prisPerLiter}kr")
       8.times.each do
         puts()
+      end
+    end
+
+    def visa_beskrivning(artikel)
+      consoleWidth = HighLine::SystemExtensions.terminal_size[0]
+      header = "Beskrivning:    "
+      lineLength = consoleWidth - header.length
+      beskrivningsRader = artikel.råvarorBeskrivning.scan(/.{1,#{lineLength}}\W/).map(&:strip)
+      if(!beskrivningsRader.empty?)
+        beskrivningsRader.each_with_index do |rad, index|
+          if(index == 0)
+            puts(header + rad)
+          else
+            header.length.times {rad = " " + rad}
+            puts rad
+          end
+        end
       end
     end
 

@@ -2,7 +2,7 @@ class WebsiteURLGenerator
 
   def generera(artikel)
     bas = "http://www.systembolaget.se/dryck/ol/"
-    ersattNamn = ersättUrl(artikel.namn)
+    ersattNamn = ersättUrl(artikel.namn.dup)
     return bas + ersattNamn + "-#{artikel.nr}"
   end
 
@@ -42,12 +42,11 @@ class WebsiteURLGenerator
         "/" => '',
         ' ' => '-'
       }
-      ersattText = text
       ersättningar.each do |key, value|
-        ersattText.gsub!(key, value)
+        text.gsub!(key, value)
       end
-      ersattText.downcase!
-      return ersattText
+      text.downcase!
+      return text
     end
 
 end
