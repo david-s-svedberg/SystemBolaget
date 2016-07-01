@@ -30,7 +30,9 @@ class ArtikelFactory
       sortiment = node.get_childnode_text('Sortiment')
       ekologiskt = !node.get_childnode_text('Ekologisk').to_i.zero?
       råvarorBeskrivning = node.get_childnode_text('RavarorBeskrivning')
-      return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
+      utgått = !node.get_childnode_text('Utgått').to_i.zero?
+      typ = node.get_childnode_text('Typ')
+      return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning, utgått, typ)
     end
 
 end

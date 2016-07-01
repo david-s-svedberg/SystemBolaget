@@ -13,8 +13,8 @@ module ArtikelTestHelper
     return ObjectGraphFactory.new().get_app()
   end
 
-  def skapa_artikel(nr: 1000, artikelId: 1000, namn: 'Artikel namn', namn2: 'Artikel namn 2', pris: 123.45, volym: 330, prisPerLiter: 997.8, säljstart: DateTime.new(2000,1,1), varugrupp: 'Öl', förpackning: 'flaska', ursprungsstad: 'Malmö', ursprungsland: 'Sverige', producent: 'Röstånga Raj Raj', alkoholhalt: '5.00%', sortiment: 'FS', ekologiskt: false, råvarorBeskrivning: 'Råvarubeskrivning')
-    return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart.to_date.to_datetime, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
+  def skapa_artikel(nr: 1000, artikelId: 1000, namn: 'Artikel namn', namn2: 'Artikel namn 2', pris: 123.45, volym: 330, prisPerLiter: 997.8, säljstart: DateTime.new(2000,1,1), varugrupp: 'Vin', förpackning: 'flaska', ursprungsstad: 'Lund', ursprungsland: 'Sverige', producent: 'Spendrups', alkoholhalt: '5.00%', sortiment: 'FS', ekologiskt: false, råvarorBeskrivning: 'God', utgått: false, typ: 'Ale')
+    return Artikel.new(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart.to_date.to_datetime, varugrupp, förpackning, ursprungsstad, ursprungsstad, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning, utgått, typ)
   end
 
   def spara_inte_för_tidigare_tilläggningar()
@@ -50,12 +50,20 @@ module ArtikelTestHelper
     ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(true)
     ValGivare.any_instance.stubs(:visa_artiklar_som_ej_går_att_beställa?).returns(true)
     ValGivare.any_instance.stubs(:visa_artiklar_som_är_tillfälligt_slut?).returns(true)
+    ValGivare.any_instance.stubs(:visa_artiklar_som_har_utgått?).returns(true)
+    ValGivare.any_instance.stubs(:begränsa_typer?).returns(false)
   end
 
   def filtrera_varugrupp(*varugrupper)
     filtrera_inte()
     ValGivare.any_instance.stubs(:begränsa_varugrupper?).returns(true)
     ValGivare.any_instance.stubs(:valda_varugrupper).returns(varugrupper)
+  end
+
+  def filtrera_typ(*typer)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:begränsa_typer?).returns(true)
+    ValGivare.any_instance.stubs(:valda_typer).returns(typer)
   end
 
   def filtrera_sortiment(*sortiment)
@@ -85,6 +93,11 @@ module ArtikelTestHelper
     filtrera_inte()
     ValGivare.any_instance.stubs(:begränsa_pris?).returns(true)
     ValGivare.any_instance.stubs(:max_pris).returns(maxPris)
+  end
+
+  def filtrera_utgått()
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:visa_artiklar_som_har_utgått?).returns(false)
   end
 
   def filtrera_kollikrav(*artiklarMedKollikrav)
@@ -210,6 +223,8 @@ module ArtikelTestHelper
         "<Ekologisk>#{artikel.ekologiskt}</Ekologisk>" \
         "<Koscher></Koscher>" \
         "<RavarorBeskrivning>#{artikel.råvarorBeskrivning}</RavarorBeskrivning>" \
+        "<Utgått>#{artikel.utgått ? 1 : 0}</Utgått>" \
+        "<Typ>#{artikel.typ}</Typ>" \
       "</artikel>"
   end
 end

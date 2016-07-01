@@ -24,6 +24,20 @@ class XmlFiltrering < Test::Unit::TestCase
     @sut.run()
   end
 
+    def test_filtrerar_typ()
+    ale = skapa_artikel(typ: 'Ale')
+    lager = skapa_artikel(typ: 'Lager')
+    porter = skapa_artikel(typ: 'Porter')
+    körsbär = skapa_artikel(typ: 'Körsbär')
+    sätt_upp_artiklar(ale, lager, porter, körsbär)
+    filtrera_typ('Ale', 'Porter')
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar(ale, porter)
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
+    @sut.run()
+  end
+
   def test_filtrerar_sortiment()
     bs = skapa_artikel(sortiment: 'BS')
     bs2 = skapa_artikel(sortiment: 'BS')
@@ -89,6 +103,20 @@ class XmlFiltrering < Test::Unit::TestCase
     filtrera_pris(100)
     lägg_till_alla_presenterade_artiklar()
     verifiera_valda_artiklar(billig, billig2)
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
+    @sut.run()
+  end
+
+  def test_filtrerar_utgått()
+    inteUtgått1 = skapa_artikel(nr: 1, utgått: false)
+    inteUtgått2 = skapa_artikel(nr: 2, utgått: false)
+    utgått1 = skapa_artikel(nr: 3, utgått: true)
+    utgått2 = skapa_artikel(nr: 4, utgått: true)
+    sätt_upp_artiklar(inteUtgått1, inteUtgått2, utgått1, utgått2)
+    filtrera_utgått()
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar(inteUtgått1, inteUtgått2)
     dölj_utskrifter()
     spara_inte_för_tidigare_tilläggningar()
     @sut.run()

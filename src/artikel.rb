@@ -1,9 +1,9 @@
 require_relative '../lib/core_ext/node'
 
 class Artikel
-  attr_reader :ekologiskt, :producent, :ursprungsland, :ursprungsstad, :förpackning, :sortiment, :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym
+  attr_reader :ekologiskt, :producent, :ursprungsland, :ursprungsstad, :förpackning, :sortiment, :artikelid, :namn, :namn2, :pris, :säljstart, :nr, :råvarorBeskrivning, :varugrupp, :alkoholhalt, :prisPerLiter, :volym, :utgått, :typ
 
-  def initialize(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart, varugrupp, förpackning, ursprungsstad, ursprungsland, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning)
+  def initialize(nr, artikelId, namn, namn2, pris, volym, prisPerLiter, säljstart, varugrupp, förpackning, ursprungsstad, ursprungsland, producent, alkoholhalt, sortiment, ekologiskt, råvarorBeskrivning, utgått, typ)
     @nr = nr
     @artikelid = artikelid
     @namn = namn
@@ -21,6 +21,8 @@ class Artikel
     @sortiment = sortiment
     @ekologiskt = ekologiskt
     @råvarorBeskrivning = råvarorBeskrivning
+    @utgått = utgått
+    @typ = typ
   end
 
   def ==(other)
@@ -68,7 +70,9 @@ class Artikel
       @alkoholhalt,
       @sortiment,
       @ekologiskt,
-      @råvarorBeskrivning
+      @råvarorBeskrivning,
+      @utgått,
+      @typ
     ]
   end
 

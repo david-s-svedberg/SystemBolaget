@@ -11,11 +11,13 @@ class XpathQueryGenerator
   def skapa_query()
     queryDelar = []
     queryDelar << skapa_varugrupp_query().wrap_with_parenthesis() unless !@valGivare.begränsa_varugrupper?()
+    queryDelar << skapa_typ_query().wrap_with_parenthesis() unless !@valGivare.begränsa_typer?()
     queryDelar << skapa_oönskade_sortiment_query().wrap_with_parenthesis() unless !@valGivare.begränsa_sortimen?()
     queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart?()
     queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?()
     queryDelar << skapa_uteslutna_query().wrap_with_parenthesis() unless @valGivare.visa_uteslutna_artiklar?()
     queryDelar << skapa_pris_query().wrap_with_parenthesis() unless !@valGivare.begränsa_pris?()
+    queryDelar << skapa_uteslut_utgått_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_som_har_utgått?()
     if(queryDelar.empty?)
       return "//artikel"
     else
@@ -31,8 +33,16 @@ class XpathQueryGenerator
       return format_and_join(@valGivare.valda_varugrupper(), "contains(./Varugrupp/text(), 'REPLACE_STRING')", ' or ')
     end
 
+    def skapa_typ_query()
+      return format_and_join(@valGivare.valda_typer(), "contains(./Typ/text(), 'REPLACE_STRING')", ' or ')
+    end
+
     def skapa_oönskade_sortiment_query()
       return format_and_join(@valGivare.oönskade_sortiment(), "./Sortiment = 'REPLACE_STRING'", ' or ').wrap('not(', ')')
+    end
+
+    def skapa_uteslut_utgått_query()
+      return "./Utgått=0"
     end
 
     def skapa_pris_query()
