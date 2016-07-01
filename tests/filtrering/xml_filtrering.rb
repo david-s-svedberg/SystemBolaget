@@ -80,4 +80,18 @@ class XmlFiltrering < Test::Unit::TestCase
     @sut.run()
   end
 
+  def test_filtrerar_pris()
+    billig = skapa_artikel(nr: 1, pris: 13.3)
+    billig2 = skapa_artikel(nr: 2, pris: 18.0)
+    dyr = skapa_artikel(nr: 3, pris: 150.5)
+    dyr2 = skapa_artikel(nr: 4, pris: 1450.7)
+    sätt_upp_artiklar(billig, billig2, dyr, dyr2)
+    filtrera_pris(100)
+    lägg_till_alla_presenterade_artiklar()
+    verifiera_valda_artiklar(billig, billig2)
+    dölj_utskrifter()
+    spara_inte_för_tidigare_tilläggningar()
+    @sut.run()
+  end
+
 end

@@ -1,4 +1,5 @@
 require 'test/unit'
+require 'coco'
 require_relative 'golden_path'
 require_relative 'filtrering/xml_filtrering'
 require_relative 'filtrering/web_filtrering'

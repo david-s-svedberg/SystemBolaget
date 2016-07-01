@@ -13,11 +13,11 @@ class ArtikelPresenterare
 
   def presentera_artiklar(artiklar)
     antalBortfiltrerade = 0
-    artiklar.each do |artikel|
+    artiklar.each_with_index do |artikel, index|
       @användarInformerare.filtrerar(antalBortfiltrerade)
       if(@artikelFiltrerare.ska_visas?(artikel))
         @användarInformerare.clear_console()
-        visa_artikel(artikel)
+        visa_artikel(artikel, artiklar.length, index)
         begär_val_från_användaren(artikel)
       else
         antalBortfiltrerade += 1
@@ -26,7 +26,7 @@ class ArtikelPresenterare
   end
 
   private
-    def visa_artikel(artikel)
+    def visa_artikel(artikel, totalAntalArtiklar, index)
       puts("Namn:           #{artikel.namn} #{artikel.namn2}")
       puts()
       puts("Varugrupp:      #{artikel.varugrupp}")
@@ -37,9 +37,11 @@ class ArtikelPresenterare
       puts("Alkoholhalt:    #{artikel.alkoholhalt}")
       puts("Volym:          #{artikel.volym}ml")
       puts("Pris per liter: #{artikel.prisPerLiter}kr")
-      8.times.each do
+      puts("Sortiment:      #{artikel.sortiment}")
+      6.times.each do
         puts()
       end
+      puts("(#{index}/#{totalAntalArtiklar})")
     end
 
     def visa_beskrivning(artikel)

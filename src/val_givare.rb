@@ -4,12 +4,14 @@ class ValGivare
 
   def initialize()
 
+    #DEFAULTS
     @visaFramtidaSäljstart = false
     @visaTidigareTillagda = false
     @visaUteslutna = false
     @visaArtiklarMedKollikrav = false
     @visaArtiklarSomEjGårAttBeställa = false
     @visaArtiklarSomÄrTillfälligtSlut = false
+    @begränsaPris = false
     @oönskadeSortiment = []
     @varugrupper = []
 
@@ -22,6 +24,7 @@ class ValGivare
       opts.on('-kk', '--kollikrav', 'Visa artiklar som har ett kollikrav ') { @visaArtiklarMedKollikrav = true }
       opts.on('-eb', '--ejbeställlbara', 'Visa artiklar som ej går att beställa då de bara får säljas till ett systembolag ') { @visaArtiklarSomEjGårAttBeställa = true }
       opts.on('-ts', '--tillfälligtslut', 'Visa artiklar som är tillfälligt slut') { @visaArtiklarSomÄrTillfälligtSlut = true }
+      opts.on('-p', '--maxpris PRIS', 'Visa endast artiklar med ett ptris lägre än PRIS') { |maxPris| @begränsaPris = true ; @maxPris = maxPris}
       opts.on('--oönskadeSortiment x,y,y', Array, 'Lista av sortiment som inte är önskvärda') { |oönskadeSortiment| @oönskadeSortiment = oönskadeSortiment }
       opts.on('--varugrupper x,y,y', Array, 'Lista av varugrupper som ska visas') { |varugrupper| @varugrupper = varugrupper }
 
@@ -67,6 +70,14 @@ class ValGivare
 
   def visa_artiklar_som_är_tillfälligt_slut?()
     return @visaArtiklarSomÄrTillfälligtSlut
+  end
+
+  def begränsa_pris?()
+    return @begränsaPris
+  end
+
+  def max_pris
+    return @maxPris
   end
 
 end

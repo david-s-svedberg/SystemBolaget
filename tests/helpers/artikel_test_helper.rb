@@ -81,6 +81,12 @@ module ArtikelTestHelper
     ArtikelNrGivare.any_instance.stubs(:tidigare_tillagda_artikel_nr).returns(tidigareTillagdaArtikelNr)
   end
 
+  def filtrera_pris(maxPris)
+    filtrera_inte()
+    ValGivare.any_instance.stubs(:begränsa_pris?).returns(true)
+    ValGivare.any_instance.stubs(:max_pris).returns(maxPris)
+  end
+
   def filtrera_kollikrav(*artiklarMedKollikrav)
     filtrera_inte()
     ValGivare.any_instance.stubs(:visa_artiklar_med_kollikrav?).returns(false)

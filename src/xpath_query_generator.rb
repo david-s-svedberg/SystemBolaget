@@ -15,6 +15,7 @@ class XpathQueryGenerator
     queryDelar << skapa_säljstarts_query().wrap_with_parenthesis() unless @valGivare.visa_artiklar_med_framtida_säljstart?()
     queryDelar << skapa_uteslut_tidigare_tillagda_query().wrap_with_parenthesis() unless @valGivare.visa_tidigare_tillagda_artiklar?()
     queryDelar << skapa_uteslutna_query().wrap_with_parenthesis() unless @valGivare.visa_uteslutna_artiklar?()
+    queryDelar << skapa_pris_query().wrap_with_parenthesis() unless !@valGivare.begränsa_pris?()
     if(queryDelar.empty?)
       return "//artikel"
     else
@@ -32,6 +33,10 @@ class XpathQueryGenerator
 
     def skapa_oönskade_sortiment_query()
       return format_and_join(@valGivare.oönskade_sortiment(), "./Sortiment = 'REPLACE_STRING'", ' or ').wrap('not(', ')')
+    end
+
+    def skapa_pris_query()
+      return "./Prisinklmoms<=#{@valGivare.max_pris}"
     end
 
     def skapa_uteslut_tidigare_tillagda_query()
